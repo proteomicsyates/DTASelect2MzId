@@ -1106,10 +1106,6 @@ public class DTASelect2MzId {
 			sir.setId(sir_id);
 			sir.setSpectrumID(getSpectrumID(dtaSelectPSM));
 
-			if (dtaSelectPSM.getSequence().equals("AAMEALQSQALHATSQQPLR")) {
-				System.out.println("asdf");
-			}
-
 			final String runId = dtaSelectPSM.getMSRun().getRunId();
 			final SpectraData spectraData = getSpectraData(runId);
 			sir.setSpectraData(spectraData);
