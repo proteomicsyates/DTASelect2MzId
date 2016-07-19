@@ -72,6 +72,23 @@
   	 			<artifactId>lucene-analyzers-common</artifactId>
   	 			<groupId>org.apache.lucene</groupId>
   	 		</exclusion>
+  	 		<exclusion>
+  	 			<groupId>taglibs</groupId>
+  	 			<artifactId>standard</artifactId>
+  	 		</exclusion>
+  	 		<exclusion>
+  	 			<groupId>org.springframework</groupId>
+  	 			<artifactId>spring-beans</artifactId>
+  	 		</exclusion>
+  	 		<exclusion>
+  	 			<groupId>org.tmatesoft.sqljet</groupId>
+  	 			<artifactId>sqljet</artifactId>
+  	 		</exclusion>
+  	 		<exclusion>
+  	 			<groupId>soap</groupId>
+  	 			<artifactId>soap</artifactId>
+  	 		</exclusion>
+  	 		
   	 	</exclusions>
   	 </dependency>
   	 <dependency>
@@ -139,7 +156,11 @@
 					<groupId>umontreal.iro.lecuyer.gof</groupId>
 					<artifactId>ssj</artifactId>
 				</exclusion>
-			</exclusions>
+				<exclusion>
+					<groupId>uk.ac.ebi.jmzml</groupId>
+					<artifactId>jmzml</artifactId>
+				</exclusion>
+	    </exclusions>
   	 </dependency>
   </dependencies>
   <build>
