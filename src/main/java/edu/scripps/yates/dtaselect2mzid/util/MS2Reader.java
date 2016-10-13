@@ -94,6 +94,12 @@ public class MS2Reader {
 
 	}
 
+	/**
+	 *
+	 * @param scanNumber
+	 *            in the form of "scan.scan.charge"
+	 * @return
+	 */
 	public Double getSpectrumRTByScan(String scanNumber) {
 		process();
 		if (rtByScanNumberMap.containsKey(scanNumber)) {
