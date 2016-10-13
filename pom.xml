@@ -9,11 +9,11 @@
   <distributionManagement>
 		<repository>
 			<id>internal</id>
-			<url>http://sealion.scripps.edu:8080/archiva/repository/internal/</url>
+			<url>http://sealion.scripps.edu/archiva/repository/internal/</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
-			<url>http://sealion.scripps.edu:8080/archiva/repository/snapshots/</url>
+			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
   <dependencies>
@@ -222,6 +222,18 @@
 <!-- 					<finalName>DTASelect2MzId</finalName>     -->
 <!-- 				</configuration> -->
 <!-- 			</plugin> -->
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-jar-plugin</artifactId>
+			    <configuration>
+			        <archive>                   
+			            <manifest>
+			                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+			                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+			            </manifest>
+			        </archive>
+			    </configuration>
+			</plugin>
 			<!-- Create single executable jar with all dependencies unpacked and embedded -->
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
