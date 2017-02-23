@@ -1,7 +1,9 @@
 # DTASelect2MzId
 Data file format converter, from DTASelect-filter.txt files (output from DTASelect software) to mzIdentML version 1.1.0 and 1.2.0
 
-Usage: DTASelect2MzId -i [input file or folder]  
+Usage: 
+```
+DTASelect2MzId -i [input file or folder]  
  
  -d,--decoy <arg>                 [OPTIONAL] decoy regular expression. Ignores matching entries. Example: 'Reverse'.
    
@@ -21,4 +23,6 @@ Usage: DTASelect2MzId -i [input file or folder]
  -u,--unique_output_file          [OPTIONAL] A single mzIdentML file will be created collapsing all the information of all the input files. Otherwise, a mzIdentML file will be created for each input file.  
    
  -v,--version <arg>               [OPTIONAL] Version of the output mzIdentML '-v', Possible values: '1.1.1', '1.2.0'. Default: 1.1.1  
+```
+
 Contact Salvador Martinez-Bartolome at salvador at scripps.edu for more help  
