@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.scripps.yates</groupId>
   <artifactId>dtaselect2mzid</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -109,7 +109,7 @@
   	 <dependency>
   	 	<groupId>edu.scripps.yates</groupId>
   	 	<artifactId>dtaselectparser</artifactId>
-  	 	<version>1.0.1-SNAPSHOT</version>
+  	 	<version>1.1.1-SNAPSHOT</version>
   	 </dependency>
   	 <dependency>
   	 	<groupId>com.compomics</groupId>
@@ -162,16 +162,28 @@
 				</exclusion>
 	    </exclusions>
   	 </dependency>
+  	 <dependency>
+  	 	<groupId>uk.ac.ebi.jmzidml</groupId>
+  	 	<artifactId>jmzidentml</artifactId>
+  	 	<version>1.1.9</version>
+  	 </dependency>
   </dependencies>
-  <build>
+  
+  <profiles>
+  	<profile>
+  		<id>dtaselect2mzid</id>
+  		<activation>
+  			<activeByDefault>true</activeByDefault>
+  		</activation>
+  		<build>
   	<plugins>
   		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<version>3.3</version>
 			<configuration>
-				<source>1.7</source>
-				<target>1.7</target>
+				<source>1.8</source>
+				<target>1.8</target>
 			</configuration>
 		</plugin>
 		<plugin>
@@ -259,8 +271,80 @@
 			      </execution>
 			    </executions>
 			  </plugin>
-  	</plugins>
-  </build>
+		  	</plugins>
+		  </build>
+  	</profile>
+  	<profile>
+  		<id>mzxmlfixer</id>
+  		<activation>
+  			<activeByDefault>false</activeByDefault>
+  		</activation>
+  		<build>
+  			<plugins>
+  				  <plugin>
+			        <artifactId>maven-compiler-plugin</artifactId>
+			        <version>3.5.1</version>
+			        <configuration>
+			          <source>1.8</source>
+			          <target>1.8</target>
+			        </configuration>
+			      </plugin>
+  				  <plugin>
+			        <artifactId>maven-dependency-plugin</artifactId>
+			        <executions>
+			          <execution>
+			            <id>copy-dependencies</id>
+			            <phase>package</phase>
+			            <goals>
+			              <goal>copy-dependencies</goal>
+			            </goals>
+			            <configuration>
+			              <outputDirectory>${project.build.directory}/${lib.dir}</outputDirectory>
+			              <overWriteReleases>true</overWriteReleases>
+			              <overWriteSnapshots>true</overWriteSnapshots>
+			              <overWriteIfNewer>true</overWriteIfNewer>
+			            </configuration>
+			          </execution>
+			        </executions>
+			      </plugin>
+  				  <plugin>
+                           <artifactId>maven-jar-plugin</artifactId>
+                           <version>2.3.2</version>
+                           <configuration>
+                                  <finalName>mzXMLFixer4Skyline</finalName>
+                                  <archive>
+                                         <manifest>
+                                                <addClasspath>true</addClasspath>
+                                 				<mainClass>edu.scripps.yates.dtaselect2mzid.skyline.MzXMLFixerGUI</mainClass>
+                                                <classpathPrefix>lib</classpathPrefix>
+                                         </manifest>
+                                  </archive>
+                                  <outputDirectory>${project.build.directory}</outputDirectory>
+                           </configuration>
+                   </plugin>
+  				   <plugin>
+                           <artifactId>maven-assembly-plugin</artifactId>
+                           <executions>
+                                  <execution>
+                                         <id>assembly</id>
+                                         <phase>package</phase>
+                                         <goals>
+                                                <goal>assembly</goal>
+                                         </goals>
+                                  </execution>
+                           </executions>
+                           <configuration>
+                                  <finalName>${assembly.dir}</finalName>
+                                  <descriptors>
+                                         <descriptor>${basedir}/src/main/resources/assembly.xml</descriptor>
+                                  </descriptors>
+                           </configuration>
+                     </plugin>
+  				   
+		  	</plugins>
+		  </build>
+  	</profile>
+  </profiles>
   <repositories>
     <repository>
       <releases>
