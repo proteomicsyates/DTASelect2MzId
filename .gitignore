@@ -17,5 +17,9 @@ hs_err_pid*
 /build/
 /src/test
 /releases/
+<<<<<<< HEAD
 /.classpath
 /.project
+=======
+.classpath
+>>>>>>> d9ebb5286e4ef223a5189bed119c855ecd79d036
