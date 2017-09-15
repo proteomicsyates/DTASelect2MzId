@@ -2,11 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.scripps.yates</groupId>
   <artifactId>dtaselect2mzid</artifactId>
-<<<<<<< HEAD
   <version>1.2</version>
-=======
-  <version>1.1</version>
->>>>>>> d9ebb5286e4ef223a5189bed119c855ecd79d036
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -187,7 +183,6 @@
   	 <dependency>
   	 	<groupId>uk.ac.ebi.jmzidml</groupId>
   	 	<artifactId>jmzidentml</artifactId>
-<<<<<<< HEAD
   	 	<version>1.2.7</version>
   	 	<exclusions>
   	 		<exclusion>
@@ -209,9 +204,6 @@
   	 	<groupId>log4j</groupId>
   	 	<artifactId>log4j</artifactId>
   	 	<version>1.2.16</version>
-=======
-  	 	<version>1.1.9</version>
->>>>>>> d9ebb5286e4ef223a5189bed119c855ecd79d036
   	 </dependency>
   </dependencies>
   
