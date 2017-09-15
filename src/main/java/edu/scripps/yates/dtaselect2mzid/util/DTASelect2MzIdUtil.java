@@ -181,6 +181,9 @@ public class DTASelect2MzIdUtil {
 		final ControlVocabularyTerm cvTermByAccession = getOntologyManager().getCVTermByAccession(new Accession(acc),
 				cvSet);
 		cvTermCache.put(acc, cvTermByAccession);
+		if (cvTermByAccession == null) {
+			log.warn(acc + " accession is not found in ontology.");
+		}
 		return cvTermByAccession;
 	}
 

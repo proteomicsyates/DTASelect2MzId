@@ -48,8 +48,8 @@ import edu.scripps.yates.dtaselect2mzid.util.LabeledSearchType;
 import edu.scripps.yates.dtaselect2mzid.util.MS2Reader;
 import edu.scripps.yates.dtaselect2mzid.util.MzIdentMLVersion;
 import edu.scripps.yates.dtaselect2mzid.util.PeptideModificationUtil;
-import edu.scripps.yates.dtaselect2mzid.util.PeptideResultsDetailsCVSet;
 import edu.scripps.yates.dtaselect2mzid.util.ReferenceToSpectra;
+import edu.scripps.yates.dtaselect2mzid.util.SpectrumIdentificationResultDetailsCVSet;
 import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.utilities.checksum.MD5Checksum;
 import edu.scripps.yates.utilities.fasta.FastaParser;
@@ -285,9 +285,10 @@ public class DTASelect2MzId {
 		// is not as nice as it would be when marshalling the whole structure at
 		// once.
 		FileWriter writer = null;
+		MzIdentMLMarshaller m = null;
 		try {
 			writer = new FileWriter(output);
-			MzIdentMLMarshaller m = new MzIdentMLMarshaller();
+			m = new MzIdentMLMarshaller();
 			// XML header
 			log.info("Creating XML header...");
 			writer.write(m.createXmlHeader() + "\n");
@@ -407,6 +408,7 @@ public class DTASelect2MzId {
 			// m.marshal(ref, writer);
 			// writer.write("\n");
 
+		} finally {
 			writer.write(m.createMzIdentMLClosingTag());
 			log.info("File created at: " + output.getAbsolutePath());
 
@@ -418,7 +420,6 @@ public class DTASelect2MzId {
 					System.err.println(errorMessage);
 				}
 			}
-		} finally {
 			if (writer != null)
 				writer.close();
 			if (mzIdentMLVersion == MzIdentMLVersion.VERSION_1_2) {
@@ -749,7 +750,7 @@ public class DTASelect2MzId {
 		ret.setLocation(file.getAbsolutePath());
 		ret.setName(FilenameUtils.getName(file.getAbsolutePath()));
 		try {
-			String md5Checksum = MD5Checksum.getMD5Checksum(file.getAbsolutePath());
+			String md5Checksum = MD5Checksum.getMD5ChecksumFromFileName(file);
 			ret.getCvParam().add(DTASelect2MzIdUtil
 					.getCVParam("MS:1000568", "MD5", md5Checksum, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 		} catch (Exception e) {
@@ -1313,9 +1314,13 @@ public class DTASelect2MzId {
 		Double scanStartTime = getScanStartTime(psm);
 		if (scanStartTime != null) {
 			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(SCAN_START_TIME_CV,
-					PeptideResultsDetailsCVSet.getInstance(cvManager));
-			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, myFormatter.format(scanStartTime));
-			return cvParam.getCvParam();
+					SpectrumIdentificationResultDetailsCVSet.getInstance(cvManager));
+			if (cvTerm != null) {
+				final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, myFormatter.format(scanStartTime));
+				return cvParam.getCvParam();
+			} else {
+				log.warn("scan_start_time CV is not found");
+			}
 		}
 		return null;
 	}
@@ -1531,7 +1536,7 @@ public class DTASelect2MzId {
 
 	private SequenceCollection getSequenceCollection() throws IOException {
 		SequenceCollection ret = new SequenceCollection();
-		final HashMap<String, Set<Protein>> proteinMap = dtaSelectParser.getProteins();
+		final Map<String, Set<Protein>> proteinMap = dtaSelectParser.getProteins();
 		if (proteinMap != null) {
 			for (Set<Protein> proteinSet : proteinMap.values()) {
 				for (Protein protein : proteinSet) {
