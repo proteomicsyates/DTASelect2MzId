@@ -1,6 +1,9 @@
 # DTASelect2MzId
 Data file format converter, from DTASelect-filter.txt files (output from DTASelect software) to mzIdentML version 1.1.0 and 1.2.0
 
+Download:
+Latest version available at: [http://sealion.scripps.edu/dtaselect2mzid/]  
+
 Usage: 
 ```
 DTASelect2MzId -i [input file or folder]  
