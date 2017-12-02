@@ -274,7 +274,7 @@ public class DTASelect2MzId {
 					}
 					ms2ReaderByFileName.put(spectraFileName, ms2Reader);
 				} catch (IllegalArgumentException e) {
-					log.error(e.getMessage());
+					log.warn(e.getMessage());
 				}
 			}
 		}
@@ -2021,7 +2021,16 @@ public class DTASelect2MzId {
 		try {
 			CommandLine cmd = parser.parse(options, args);
 			if (cmd.hasOption("i")) {
-				inputFile = new File(cmd.getOptionValue("i"));
+				final String iOptionValue = cmd.getOptionValue("i");
+				inputFile = new File(iOptionValue);
+				final File parentFile = inputFile.getParentFile();
+				if (parentFile == null || !inputFile.exists()) {
+					inputFile = new File(System.getProperty("user.dir") + File.separator + iOptionValue);
+				}
+
+				if (!inputFile.exists()) {
+					errorInParameters("Input file '-i " + iOptionValue + "' doesn't exist or is not found");
+				}
 			} else {
 				errorInParameters("Input file is missing");
 			}
