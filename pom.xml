@@ -2,10 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.scripps.yates</groupId>
   <artifactId>dtaselect2mzid</artifactId>
-  <version>1.2</version>
+  <version>1.3</version>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+      <assembly.output.folder>DTASelect2MzID</assembly.output.folder>
+      <lib.dir>lib</lib.dir>
+      <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
+      <assembly.dir>DTASelect2MzId_v${project.version}</assembly.dir>
+   </properties>
   <distributionManagement>
 		<repository>
 			<id>internal</id>
@@ -40,7 +43,11 @@
   	 	<artifactId>pint.model</artifactId>
   	 	<version>1.0.0-SNAPSHOT</version>
   	 	<exclusions>
-  	 		<exclusion>
+       		<exclusion>
+      			<groupId>ch.qos.logback</groupId>
+      			<artifactId>logback-classic</artifactId>
+      		</exclusion>
+   	 		<exclusion>
   	 			<artifactId>mockito-all</artifactId>
   	 			<groupId>org.mockito</groupId>
   	 		</exclusion>
@@ -105,6 +112,10 @@
   	 			<groupId>org.apache.logging.log4j</groupId>
   	 			<artifactId>log4j-slf4j-impl</artifactId>
   	 		</exclusion>
+  	 		<exclusion>
+  	 			<groupId>ch.qos.logback</groupId>
+  	 			<artifactId>logback-core</artifactId>
+  	 		</exclusion>
   	 	</exclusions>
   	 </dependency>
   	 <dependency>
@@ -124,6 +135,10 @@
 	     	<exclusion>
 	     		<groupId>org.slf4j</groupId>
 	     		<artifactId>slf4j-api</artifactId>
+	     	</exclusion>
+	     	<exclusion>
+	     		<groupId>ch.qos.logback</groupId>
+	     		<artifactId>logback-core</artifactId>
 	     	</exclusion>
 	     </exclusions>
   	 </dependency>
@@ -201,6 +216,10 @@
   	 		 	<groupId>ch.qos.logback</groupId>
   	 		 	<artifactId>logback-classic</artifactId>
   	 		 </exclusion>
+  	 		 <exclusion>
+  	 		 	<groupId>ch.qos.logback</groupId>
+  	 		 	<artifactId>logback-core</artifactId>
+  	 		 </exclusion>
   	 	</exclusions>
   	 </dependency>
   	 <dependency>
@@ -213,6 +232,11 @@
   	 	<artifactId>log4j</artifactId>
   	 	<version>1.2.16</version>
   	 </dependency>
+  	  <dependency>
+      	<groupId>org.slf4j</groupId>
+      	<artifactId>slf4j-log4j12</artifactId>
+      	<version>1.7.25</version>
+      </dependency>
   </dependencies>
   
   <profiles>
@@ -259,66 +283,106 @@
 	            </goals>
 	          </execution>
 	        </executions>
-	        	<configuration>
+	        <configuration>
 	        	<finalName>DTASelect2MzId</finalName>    
-				</configuration>
-	      </plugin>
-	      <!--  create a single executable jar with all dependencies in the lib folder -->
-<!-- 	      <plugin> -->
-<!-- 		    	<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 		       	<artifactId>maven-jar-plugin</artifactId> -->
-<!-- 		       	<version>2.4</version> -->
-		  
-<!-- 		       	<configuration> -->
-<!-- 					<archive> -->
-<!-- 						<manifest> -->
-<!-- 							<addClasspath>true</addClasspath> -->
-<!--             				<classpathPrefix>lib/</classpathPrefix> -->
-<!--             				<mainClass>edu.scripps.yates.dtaselect2mzid.DTASelect2MzId</mainClass> -->
-<!-- 						</manifest> -->
-<!-- 					</archive> -->
-<!-- 					<finalName>DTASelect2MzId</finalName>     -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
+			</configuration>
+	     </plugin>
+
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-jar-plugin</artifactId>
+			    <version>3.0.2</version>
 			    <configuration>
 			        <archive>                   
 			            <manifest>
-			                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-			                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-			            </manifest>
+		                     <addClasspath>true</addClasspath>
+		                     <mainClass>edu.scripps.yates.dtaselect2mzid.DTASelect2MzId</mainClass>
+		                     <classpathPrefix>lib/</classpathPrefix>
+		                     <useUniqueVersions>false</useUniqueVersions>
+		                </manifest>
 			        </archive>
 			    </configuration>
 			</plugin>
-			<!-- Create single executable jar with all dependencies unpacked and embedded -->
-			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-assembly-plugin</artifactId>
-			    <configuration>
-			      <archive>
-			        <manifest>
-			          <mainClass>edu.scripps.yates.dtaselect2mzid.DTASelect2MzId</mainClass>
-			          <addClasspath>true</addClasspath>
-			          <classpathPrefix>lib/</classpathPrefix>
-			        </manifest>
-			      </archive>
-			      <!--  to add a suffix name to the final jar -->
-			      <descriptorRefs>
-			      	<descriptorRef>jar-with-dependencies</descriptorRef>
-			      </descriptorRefs>
-			      <finalName>DTASelect2MzId</finalName>    
-			    </configuration>
-			    <executions>
-			      <execution>
-			        <phase>package</phase>
-			        <goals><goal>single</goal></goals>
-			      </execution>
-			    </executions>
-			  </plugin>
-		  	</plugins>
-		  </build>
+			 <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.0.2</version>
+            <executions>
+               <execution>
+                  <id>copy-dependencies</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>copy-dependencies</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${project.build.directory}/${lib.dir}</outputDirectory>
+                     <overWriteReleases>true</overWriteReleases>
+                     <overWriteSnapshots>true</overWriteSnapshots>
+<!--                      <overWriteIfNewer>true</overWriteIfNewer> -->
+<!--                      useBaseVersion=false makes the jar names match those -->
+<!--                      that maven-jar-plugin puts in the manifest classpath  -->
+<!--  Either append the artifact's baseVersion or uniqueVersion to the filename. Will only be used if isStripVersion() is false. -->
+                	 <useBaseVersion>true</useBaseVersion>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+	        <groupId>org.codehaus.mojo</groupId>
+	        <artifactId>properties-maven-plugin</artifactId>
+	        <version>1.0.0</version>
+	        <executions>
+	          <execution>
+	            <phase>generate-resources</phase>
+	            <goals>
+	              <goal>write-project-properties</goal>
+	            </goals>
+	            <configuration>
+	              <outputFile>
+	                ${project.build.outputDirectory}/app.properties
+	              </outputFile>
+	              <properties>
+                    <property>
+                        <name>revision</name>
+                        <value>${revision}</value>
+                    </property>
+                    <property>
+                        <name>buildnumber</name>
+                        <value>${buildnumber}</value>
+                    </property>
+                </properties>
+	            </configuration>
+	          </execution>
+	        </executions>
+	      </plugin>
+	      <plugin>
+               <artifactId>maven-assembly-plugin</artifactId>
+                  <version>3.1.0</version>
+                  <executions>
+                     <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>single</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+                  <configuration>
+                     <finalName>${assembly.dir}</finalName>
+                     <descriptors>
+                        <descriptor>${basedir}/src/main/resources/assembly.xml</descriptor>
+                     </descriptors>
+                     <archive>
+		               	  <manifest>
+		                     <addClasspath>true</addClasspath>
+		                     <mainClass>edu.scripps.yates.dtaselect2mzid.DTASelect2MzId</mainClass>
+		                     <classpathPrefix>lib/</classpathPrefix>
+		                     <useUniqueVersions>false</useUniqueVersions>
+		                  </manifest>
+		               </archive>
+                  </configuration>
+               </plugin>
+	    </plugins>
+	  </build>
   	</profile>
   	<profile>
   		<id>mzxmlfixer</id>
