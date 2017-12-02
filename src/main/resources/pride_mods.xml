@@ -738,7 +738,7 @@
 				<psi_modification id="MOD:01739" title="TMT6plex-128 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
 				<psi_modification id="MOD:01763" title="TMT6plex-131 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>			
 			</psi_modifications>
-		</pride_modification>	
+		</pride_modification>
 		<!-- added by Salva on 1/20/2015 for supporting biotin+AHA modification in Daniel's PALM data -->
 		<pride_modification title="AHA" id="44" diff_mono="523.2746" biological_significance="0">
 			<unimod_mappings>
