@@ -352,6 +352,7 @@ public class DTASelect2MzId {
 			AnalysisProtocolCollection analysisProtocolCollection = getAnalysisProcotolCollection();
 			m.marshal(analysisProtocolCollection, writer);
 			writer.write("\n");
+			writer.flush();
 			//
 			log.info("Creating DataCollection element...");
 			writer.write(m.createDataCollectionStartTag() + "\n");
@@ -867,7 +868,13 @@ public class DTASelect2MzId {
 	private SpectrumIdentificationProtocol getSpectrumIdentificationProtocol(LabeledSearchType lst) throws IOException {
 		if (!sipByLST.containsKey(lst)) {
 			SpectrumIdentificationProtocol sip = new SpectrumIdentificationProtocol();
-			sip.setId("SIP_" + lst.getKey());
+			// set analysis software to DTASelect
+			// otherwise PRIDE Inspector fails
+			String key = lst.getKey();
+			if (key != null && !"".equals(key)) {
+				key = "_" + key;
+			}
+			sip.setId("SIP" + key);
 			sip.setAnalysisSoftware(getSearchEngine());
 			sip.setEnzymes(SearchParametersManager.getInstance().getEnzymes(lst));
 			sip.setFragmentTolerance(SearchParametersManager.getInstance().getFragmentTolerance(lst));
@@ -1041,9 +1048,17 @@ public class DTASelect2MzId {
 		return ret;
 	}
 
+	private String getNotNullUnderscoreAndSearchEngine() throws IOException {
+		AnalysisSoftware searchEngine = getSearchEngine();
+		if (searchEngine != null && searchEngine.getId() != null) {
+			return "_" + searchEngine.getId();
+		}
+		return "";
+	}
+
 	private SpectrumIdentificationList getSpectrumIdentificationList(String fileID, LabeledSearchType lst)
 			throws IOException {
-		final String silID = "SIL_" + fileID + "_" + getSearchEngine().getId() + "_" + lst.getKey();
+		final String silID = "SIL_" + fileID + getNotNullUnderscoreAndSearchEngine() + "_" + lst.getKey();
 		if (!spectrumIdentificationListMap.containsKey(silID)) {
 			SpectrumIdentificationList spectrumIdentificationList = new SpectrumIdentificationList();
 			spectrumIdentificationList.setId(silID);
@@ -1256,9 +1271,15 @@ public class DTASelect2MzId {
 				}
 			}
 			// scores
-			ret.getCvParam().add(getDeltaCnScore(getDeltaCn(dtaSelectPSM)));
-			ret.getCvParam().add(getXCorrScore(getXCorr(dtaSelectPSM)));
+			Double deltaCn = getDeltaCn(dtaSelectPSM);
+			if (deltaCn != null) {
+				ret.getCvParam().add(getDeltaCnScore(deltaCn));
+			}
 
+			Double xCorr = getXCorr(dtaSelectPSM);
+			if (xCorr != null) {
+				ret.getCvParam().add(getXCorrScore(xCorr));
+			}
 			// TODO
 			// THIS HAS BEEN ADDED IN ORDER TO BE COMPATIBLE WITH SKYLINE UNTIL
 			// THEY MODIFY THEIR SOFTWARE IN ORDER TO INCLUDE EVERYTHING IN THE
@@ -1367,19 +1388,21 @@ public class DTASelect2MzId {
 		if (deltacn == null) {
 			return null;
 		}
-
-		if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.SEQUEST)) {
-			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(DELTACN_SEQUEST,
-					Score.getInstance(cvManager));
-			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(deltacn));
-			return cvParam.getCvParam();
-		} else if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.PROLUCID)) {
+		if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.PROLUCID)) {
 			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(DELTACN_PROLUCID,
 					Score.getInstance(cvManager));
 			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(deltacn));
 			return cvParam.getCvParam();
+		} else {
+			// if
+			// (dtaSelectParser.getSearchEngines().contains(DTASelectParser.SEQUEST))
+			// {
+			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(DELTACN_SEQUEST,
+					Score.getInstance(cvManager));
+			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(deltacn));
+			return cvParam.getCvParam();
 		}
-		return null;
+		// return null;
 	}
 
 	private CvParam getXCorrScore(Double xcorr) throws IOException {
@@ -1388,18 +1411,21 @@ public class DTASelect2MzId {
 		}
 		final ControlVocabularyManager om = DTASelect2MzIdUtil.getOntologyManager();
 
-		if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.SEQUEST)) {
-			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(XCORR_SEQUEST,
-					Score.getInstance(om));
-			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(xcorr));
-			return cvParam.getCvParam();
-		} else if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.PROLUCID)) {
+		if (dtaSelectParser.getSearchEngines().contains(DTASelectParser.PROLUCID)) {
 			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(XCORR_PROLUCID,
 					Score.getInstance(om));
 			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(xcorr));
 			return cvParam.getCvParam();
+		} else {
+			// if
+			// (dtaSelectParser.getSearchEngines().contains(DTASelectParser.SEQUEST))
+			// {
+			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(XCORR_SEQUEST,
+					Score.getInstance(om));
+			final Param cvParam = DTASelect2MzIdUtil.getCVParam(cvTerm, String.valueOf(xcorr));
+			return cvParam.getCvParam();
 		}
-		return null;
+		// return null;
 	}
 
 	private PeptideEvidenceRef getPeptideEvidenceRef(PSM dtaSelectPSM, Protein dtaSelectProtein) throws IOException {
@@ -1518,7 +1544,12 @@ public class DTASelect2MzId {
 	private ProteinDetectionList getProteinDetectionList() throws IOException {
 		if (pdl == null) {
 			pdl = new ProteinDetectionList();
-			pdl.setId("PDL_" + getSearchEngine().getId());
+			AnalysisSoftware searchEngine = getSearchEngine();
+			String suffix = "";
+			if (searchEngine != null) {
+				suffix = "_" + searchEngine.getId();
+			}
+			pdl.setId("PDL" + suffix);
 			final List<ProteinGroup> proteinGroups = getGroups();
 			int numPAG = 0;
 			for (ProteinGroup proteinGroup : proteinGroups) {
@@ -1901,14 +1932,36 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisSoftware getSearchEngine() throws IOException {
-		AnalysisSoftware ret = null;
 		if (isProLuCIDSearch()) {
 			return getProLuCIDAnalysisSoftware();
 		}
 		if (isSequestSearch()) {
 			return getSequestAnalysisSoftware();
 		}
-		return ret;
+		AnalysisSoftware searchEngineSofware = getOtherSearchEngineSoftware();
+		if (searchEngineSofware != null) {
+			return searchEngineSofware;
+		}
+		return null;
+	}
+
+	private AnalysisSoftware getOtherSearchEngineSoftware() throws IOException {
+		if (dtaSelectParser != null) {
+			final Set<String> searchEngines = dtaSelectParser.getSearchEngines();
+			for (String searchEngine : searchEngines) {
+				if (!searchEngine.equals(DTASelectParser.SEQUEST) && !searchEngine.equals(DTASelectParser.PROLUCID)) {
+					AnalysisSoftware ret = new AnalysisSoftware();
+					ret.setId(searchEngine);
+					ret.setName(searchEngine);
+					ret.setVersion(dtaSelectParser.getSearchEngineVersion());
+
+					final Param searchEngineUserParam = DTASelect2MzIdUtil.getUserParam(searchEngine, null);
+					ret.setSoftwareName(searchEngineUserParam);
+					return ret;
+				}
+			}
+		}
+		return null;
 	}
 
 	private AnalysisSoftware getSequestAnalysisSoftware() throws IOException {
