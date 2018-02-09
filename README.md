@@ -27,5 +27,26 @@ DTASelect2MzId -i [input file or folder]
    
  -v,--version <arg>               [OPTIONAL] Version of the output mzIdentML '-v', Possible values: '1.1.1', '1.2.0'. Default: 1.1.1  
 ```
+  
+   
+---
+  
+   
+*Note about **referenceToSpectra** parameter:*  
+   - The use of the parameter *referenceToSpectra* will make the converter to read the associated spectra files (mzXML or ms2) in order to properly include the reference to the spectra of the peptide spectrum matches.
+   - However, the converter will not include the actual identified/matched fragment ions in the output mzIdentML file.
+   - As an example, if the converter reads the spectrum line from the DTASelect file as:
+```
+*	042117_PB1_trypsin.18815.18815.3	1.7635	0.3047	100.0	2275.1868	2275.1765	4.5	1986159.2	2	3.9090989	12.0	31.5	1	G.GGWSGSHAFILVM(15.9949)AALTTRAGR.K 
+```  
+
+it will look for the file named as 
+```
+042117_PB1_trypsin.extension
+```
+where 'extension' is the parameter value of **-rs** input parameter.
+  - If everything goes well, then you will be able to open the output mzIdentML in a software sich as [PRIDE Inspector](https://github.com/PRIDE-Toolsuite/pride-inspector) and then be able to select the associated spectra files, which will load the matches spectra in the screen with their corresponding annotated matched fragment ions.
+  
+
 
 Contact Salvador Martinez-Bartolome at salvador at scripps.edu for more help  
