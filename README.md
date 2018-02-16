@@ -49,7 +49,7 @@ where 'extension' is the parameter value of **-rs** input parameter.
     
 ---    
   
- #### How to integrate search engine input parameters in the mzIdentML?
+ ### How to integrate search engine input parameters in the mzIdentML?
   You should have a ***search.xml*** file in the same forlder as the input files. If it is found, elements such as:
    - *Enzymes*, 
    - *FragmentTolerance*, 
@@ -59,4 +59,5 @@ where 'extension' is the parameter value of **-rs** input parameter.
    
  will be added to the  *SpectrumIdentificationProtocol* element of the resulting mzIdentML file.
 
+---    
 Contact Salvador Martinez-Bartolome at salvador at scripps.edu for more help  
