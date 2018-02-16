@@ -39,10 +39,23 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Database;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.EnzymeInfo;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.EnzymeInfo.Residues;
 import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.HeavySearchMode;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Isotopes;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm.DiffMods;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.NTerm;
 import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.NTerm.DiffMods.DiffMod;
 import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.StaticMods;
 import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.StaticMods.StaticMod;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.NumPeakLimits;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.PeptideLengthLimits;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.PrecursorMassLimits;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.SearchMode;
+import edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Tolerance;
 
 public class SearchXmlFile {
 	private final static Logger log = Logger.getLogger(SearchXmlFile.class);
@@ -181,79 +194,163 @@ public class SearchXmlFile {
 		final Unmarshaller createUnmarshaller = jaxbContext.createUnmarshaller();
 		final Parameters sp = (Parameters) createUnmarshaller.unmarshal(paraFile);
 
-		databaseName = sp.getDatabase().getDatabaseName();
-		primaryScoreType = sp.getSearchMode().getPrimaryScoreType() + "";
-		secondaryScoreType = sp.getSearchMode().getSecondaryScoreType() + "";
-		minMatch = sp.getSearchMode().getMinMatch() + "";
-		precursorIsotope = sp.getIsotopes().getPrecursor();
-		fragmentIsotope = sp.getIsotopes().getFragment();
-		// numIsotopicPeaks = sp.getNumIsotopicPeaks() + "";
-		String nips = Integer.valueOf(sp.getIsotopes().getNumPeaks() + "") + "";
-		numIsotopicPeaks = "0".equals(nips) ? "3" : nips;
-		preprocess = sp.getSearchMode().getPreprocess() + "";
-		highPrecursorTolerance = sp.getTolerance().getPrecursorHigh() + "";
-		lowPrecursorTolerance = sp.getTolerance().getPrecursorLow() + "";
-		fragmentTolerance = sp.getTolerance().getFragment() + "";
-		// System.out.println("fragmentTolerance: " + fragmentTolerance);
-		precursorTolerance = sp.getTolerance().getPrecursor() + "";
-		maxPrecursorMass = sp.getPrecursorMassLimits().getMaximum() + "";
-		minPrecursorMass = sp.getPrecursorMassLimits().getMinimum() + "";
-		minimumPeptideLength = sp.getPeptideLengthLimits().getMinimum() + "";
-		maxNumPeaks = sp.getNumPeakLimits().getMaximum() + "";
-		minNumPeaks = sp.getNumPeakLimits().getMinimum() + "";
-		maxNumDiffmod = sp.getMaxNumDiffmod() + "";
-		isDatabaseIndexed = sp.getDatabase().getIsIndexed();
-		peakRankThreshold = sp.getSearchMode().getPeakRankThreshold() + "";
-		candidatePeptideThreshold = sp.getSearchMode().getCandidatePeptideThreshold() + "";
-		numOutput = sp.getSearchMode().getNumOutput() + "";
-		locusType = sp.getSearchMode().getLocusType() + "";
-		displayMod = sp.getModifications().getDisplayMod() + "";
-		msaMode = sp.getSearchMode().getMultistageActivationMode() + "";
-		isDeCharged = String.valueOf(sp.getSearchMode().getIsDecharged());
-		nTermStaticMod = sp.getModifications().getNTerm().getStaticMod().getMassShift() + "";
-		cTermStaticMod = sp.getModifications().getCTerm().getStaticMod().getMassShift() + "";
-		// paramFileName = "search.xml";
-		chargeDisambiguation = String.valueOf(sp.getSearchMode().getChargeDisambiguation());
-
-		resolution = sp.getIsotopes().getNumPeaks() == 0 ? "low" : "high";
-
-		enzymeSpecificity = sp.getEnzymeInfo().getSpecificity() + "";
-		maxInternalMisCleavage = sp.getEnzymeInfo().getMaxNumInternalMisCleavage() + "";
-		// System.out.println("sp:" + sp);
-		// System.out.println("protease: " + sp.getProtease());
-		// System.out.println("residues: " + sp.getProtease().getResidues());
-		for (String residue : sp.getEnzymeInfo().getResidues().getResidue()) {
-			enzymeResidues += residue;
-		}
-
-		// cutPosition = sp.getProtease().getType() ? "true" : "false";
-		enzymeName = sp.getEnzymeInfo().getName();
-
-		ntermdiff = new String[sp.getModifications().getNTerm().getDiffMods().getDiffMod().size()];
-		int counter = 0;
-		for (DiffMod diffMod : sp.getModifications().getNTerm().getDiffMods().getDiffMod()) {
-			ntermdiff[counter++] = diffMod.getMassShift() + "";
-		}
-
-		ctermdiff = new String[sp.getModifications().getCTerm().getDiffMods().getDiffMod().size()];
-		counter = 0;
-		for (edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm.DiffMods.DiffMod diffMod : sp
-				.getModifications().getCTerm().getDiffMods().getDiffMod()) {
-			ctermdiff[counter++] = diffMod.getMassShift() + "";
-		}
-
-		diffmods = new String[sp.getModifications().getDiffMods().getDiffMod().size()];
-		counter = 0;
-		for (edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.DiffMods.DiffMod diffMod : sp
-				.getModifications().getDiffMods().getDiffMod()) {
-			StringBuffer sb = new StringBuffer(20);
-			sb.append(diffMod.getMassShift() + " ");
-			final List<String> residues = diffMod.getResidues().getResidue();
-			for (String residue : residues) {
-				sb.append(residue);
+		SearchMode searchMode = sp.getSearchMode();
+		if (searchMode != null) {
+			primaryScoreType = searchMode.getPrimaryScoreType() + "";
+			secondaryScoreType = searchMode.getSecondaryScoreType() + "";
+			minMatch = searchMode.getMinMatch() + "";
+			preprocess = searchMode.getPreprocess() + "";
+			msaMode = searchMode.getMultistageActivationMode() + "";
+			isDeCharged = String.valueOf(searchMode.getIsDecharged());
+			peakRankThreshold = searchMode.getPeakRankThreshold() + "";
+			candidatePeptideThreshold = searchMode.getCandidatePeptideThreshold() + "";
+			numOutput = searchMode.getNumOutput() + "";
+			locusType = searchMode.getLocusType() + "";
+			chargeDisambiguation = String.valueOf(searchMode.getChargeDisambiguation());
+			if (searchMode.getFragmentationMethod() != null) {
+				activationMethod = searchMode.getFragmentationMethod().trim();
 			}
+		}
+		Isotopes isotopes = sp.getIsotopes();
+		if (isotopes != null) {
+			precursorIsotope = isotopes.getPrecursor();
+			fragmentIsotope = isotopes.getFragment();
+			// numIsotopicPeaks = sp.getNumIsotopicPeaks() + "";
+			String nips = Integer.valueOf(isotopes.getNumPeaks() + "") + "";
+			numIsotopicPeaks = "0".equals(nips) ? "3" : nips;
+			resolution = isotopes.getNumPeaks() == 0 ? "low" : "high";
+		}
+		Tolerance tolerance = sp.getTolerance();
+		if (tolerance != null) {
+			highPrecursorTolerance = tolerance.getPrecursorHigh() + "";
+			lowPrecursorTolerance = tolerance.getPrecursorLow() + "";
+			fragmentTolerance = tolerance.getFragment() + "";
+			// System.out.println("fragmentTolerance: " + fragmentTolerance);
+			precursorTolerance = tolerance.getPrecursor() + "";
+		}
+		PrecursorMassLimits precursorMassLimits = sp.getPrecursorMassLimits();
+		if (precursorMassLimits != null) {
+			maxPrecursorMass = precursorMassLimits.getMaximum() + "";
+			minPrecursorMass = precursorMassLimits.getMinimum() + "";
+		}
+		PeptideLengthLimits peptideLengthLimits = sp.getPeptideLengthLimits();
+		if (peptideLengthLimits != null) {
+			minimumPeptideLength = peptideLengthLimits.getMinimum() + "";
+		}
+		NumPeakLimits numPeakLimits = sp.getNumPeakLimits();
+		if (numPeakLimits != null) {
+			maxNumPeaks = numPeakLimits.getMaximum() + "";
+			minNumPeaks = numPeakLimits.getMinimum() + "";
+		}
+		maxNumDiffmod = sp.getMaxNumDiffmod() + "";
+		Database database = sp.getDatabase();
+		if (database != null) {
+			databaseName = database.getDatabaseName();
+			isDatabaseIndexed = database.getIsIndexed();
+		}
 
-			diffmods[counter++] = sb.toString();
+		Modifications modifications = sp.getModifications();
+		if (modifications != null) {
+			displayMod = modifications.getDisplayMod() + "";
+			NTerm nTerm = modifications.getNTerm();
+			if (nTerm != null) {
+				edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.NTerm.StaticMod nTermStaticModObj = nTerm
+						.getStaticMod();
+				if (nTermStaticModObj != null) {
+					nTermStaticMod = nTermStaticModObj.getMassShift() + "";
+
+				}
+				edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.NTerm.DiffMods nTermDiffModsObj = nTerm
+						.getDiffMods();
+				if (nTermDiffModsObj != null) {
+					List<DiffMod> nTermDiffModList = nTermDiffModsObj.getDiffMod();
+					if (nTermDiffModList != null) {
+						ntermdiff = new String[nTermDiffModList.size()];
+						int counter = 0;
+						for (DiffMod nTermDiffMod : nTermDiffModList) {
+							ntermdiff[counter++] = nTermDiffMod.getMassShift() + "";
+						}
+					}
+				}
+			}
+			CTerm cTerm = modifications.getCTerm();
+			if (cTerm != null) {
+				edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm.StaticMod cTermStaticModObj = cTerm
+						.getStaticMod();
+				if (cTermStaticModObj != null) {
+					cTermStaticMod = cTermStaticModObj.getMassShift() + "";
+				}
+				DiffMods cTermDiffModObj = cTerm.getDiffMods();
+				if (cTermDiffModObj != null) {
+					List<edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm.DiffMods.DiffMod> cTermDiffModList = cTermDiffModObj
+							.getDiffMod();
+					if (cTermDiffModList != null) {
+						ctermdiff = new String[cTermDiffModList.size()];
+						int counter = 0;
+						for (edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.CTerm.DiffMods.DiffMod cTermDiffMod : cTermDiffModList) {
+							ctermdiff[counter++] = cTermDiffMod.getMassShift() + "";
+						}
+
+					}
+				}
+			}
+			edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.DiffMods diffModsObj = modifications
+					.getDiffMods();
+			if (diffModsObj != null) {
+				List<edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.DiffMods.DiffMod> diffModList = diffModsObj
+						.getDiffMod();
+				if (diffModList != null) {
+					diffmods = new String[diffModList.size()];
+					int counter = 0;
+					for (edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.DiffMods.DiffMod diffMod : diffModList) {
+						StringBuffer sb = new StringBuffer(20);
+						sb.append(diffMod.getMassShift() + " ");
+						edu.scripps.yates.dtaselect2mzid.search.jaxb.Parameters.Modifications.DiffMods.DiffMod.Residues diffModResiduesObj = diffMod
+								.getResidues();
+						if (diffModResiduesObj != null) {
+							final List<String> diffModResiduesList = diffModResiduesObj.getResidue();
+							for (String diffModResidue : diffModResiduesList) {
+								sb.append(diffModResidue);
+							}
+						}
+						diffmods[counter++] = sb.toString();
+					}
+				}
+			}
+			// get static mods
+			StaticMods staticModObj = modifications.getStaticMods();
+			List<StaticMod> staticModList = staticModObj.getStaticMod();
+			if (staticModList != null) {
+				staticmods = new String[staticModList.size()];
+				int counter = 0;
+				for (StaticMod staticMod : staticModList) {
+					char residue = 0;
+					if (staticMod.getResidue() != null) {
+						residue = staticMod.getResidue().charAt(0);
+					}
+					String massShift = staticMod.getMassShift() + "";
+					staticmods[counter++] = massShift + " " + residue;
+				}
+			}
+		}
+		// paramFileName = "search.xml";
+
+		EnzymeInfo enzymeInfo = sp.getEnzymeInfo();
+		if (enzymeInfo != null) {
+			enzymeSpecificity = enzymeInfo.getSpecificity() + "";
+			maxInternalMisCleavage = enzymeInfo.getMaxNumInternalMisCleavage() + "";
+			// System.out.println("sp:" + sp);
+			// System.out.println("protease: " + sp.getProtease());
+			// System.out.println("residues: " +
+			// sp.getProtease().getResidues());
+			Residues residues = enzymeInfo.getResidues();
+			if (residues != null) {
+				for (String residue : residues.getResidue()) {
+					enzymeResidues += residue;
+				}
+			}
+			// cutPosition = sp.getProtease().getType() ? "true" : "false";
+			enzymeName = enzymeInfo.getName();
 		}
 
 		FileInputStream paramInput = new FileInputStream(paraFile);
@@ -265,17 +362,6 @@ public class SearchXmlFile {
 		// root.getChild("precursor_mass_limits");
 		// atomicEnrichment = sp.getAtomicEnrichment() + "";
 		// activationMethod = sp.isEtdSearch()? "ETD" : "CID";
-		activationMethod = sp.getSearchMode().getFragmentationMethod().trim();
-
-		// get static mods
-		StaticMods staticModList = sp.getModifications().getStaticMods();
-		staticmods = new String[staticModList.getStaticMod().size()];
-		counter = 0;
-		for (StaticMod e : staticModList.getStaticMod()) {
-			char residue = e.getResidue().charAt(0);
-			String massShift = e.getMassShift() + "";
-			staticmods[counter++] = massShift + " " + residue;
-		}
 
 		HeavySearchMode hsm = sp.getHeavySearchMode();
 		if (hsm != null) {
@@ -307,7 +393,7 @@ public class SearchXmlFile {
 
 				int numhmods = allhmods.size() > 0 ? allhmods.size() : 1;
 				heavymods = new String[numhmods];
-				counter = 0;
+				int counter = 0;
 				if (numhmods == 1) {
 					if (allhmods.size() > 0) {
 
@@ -345,7 +431,7 @@ public class SearchXmlFile {
 				}
 				int nummods = allmmods.size() > 0 ? allmmods.size() : 1;
 				mediummods = new String[nummods];
-				counter = 0;
+				int counter = 0;
 				if (nummods == 1) {
 					if (allmmods.size() > 0)
 						mediummods[0] = allmmods.get(0);
