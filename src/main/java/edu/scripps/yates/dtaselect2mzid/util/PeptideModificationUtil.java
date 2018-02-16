@@ -61,7 +61,7 @@ public class PeptideModificationUtil {
 		}
 		this.residues = residues;
 		delta = massShift;
-		double precision = 0.01;
+		double precision = 0.03;
 		// map by delta
 		SlimModCollection filteredMods = preferredModifications.getbyDelta(delta, precision);
 		if (!filteredMods.isEmpty()) {
