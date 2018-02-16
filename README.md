@@ -46,7 +46,18 @@ it will look for the file named as
 ```
 where 'extension' is the parameter value of **-rs** input parameter.
   - If everything goes well, then you will be able to open the output mzIdentML in a software sich as [PRIDE Inspector](https://github.com/PRIDE-Toolsuite/pride-inspector) and then be able to select the associated spectra files, which will load the matches spectra in the screen with their corresponding annotated matched fragment ions.
+    
+---    
   
+ ### How to integrate search engine input parameters in the mzIdentML?
+  You should have a ***search.xml*** file in the same forlder as the input files. If it is found, elements such as:
+   - *Enzymes*, 
+   - *FragmentTolerance*, 
+   - *ParentTolerance*, 
+   - *SearchType* or
+   - *ModificationParams*  
+   
+ will be added to the  *SpectrumIdentificationProtocol* element of the resulting mzIdentML file.
 
-
+---    
 Contact Salvador Martinez-Bartolome at salvador at scripps.edu for more help  
