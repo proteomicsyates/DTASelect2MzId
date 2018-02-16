@@ -262,17 +262,19 @@ public class DTASelect2MzId {
 					if (!ms2File.exists()) {
 						ms2File = new File(path + File.separator + spectraFileFullPath + ".ms2");
 					}
-					MS2Reader ms2Reader = new MS2Reader(ms2File);
-					log.info("Setting up ms2 reader for file: '" + ms2File.getAbsolutePath());
-					String spectraFileName = FilenameUtils.getBaseName(ms2File.getAbsolutePath());
-					if (ms2ReaderByFileName.containsKey(spectraFileName)) {
-						log.info(ms2ReaderByFileName.get(spectraFileName).getFileName());
-					}
+					if (ms2File.exists()) {
+						MS2Reader ms2Reader = new MS2Reader(ms2File);
+						log.info("Setting up ms2 reader for file: '" + ms2File.getAbsolutePath());
+						String spectraFileName = FilenameUtils.getBaseName(ms2File.getAbsolutePath());
+						if (ms2ReaderByFileName.containsKey(spectraFileName)) {
+							log.info(ms2ReaderByFileName.get(spectraFileName).getFileName());
+						}
 
-					if (getLabeledSearchTypeByFileName(spectraFileName) != LabeledSearchType.LIGHT) {
-						spectraFileName = spectraFileName.substring(1, spectraFileName.length());
+						if (getLabeledSearchTypeByFileName(spectraFileName) != LabeledSearchType.LIGHT) {
+							spectraFileName = spectraFileName.substring(1, spectraFileName.length());
+						}
+						ms2ReaderByFileName.put(spectraFileName, ms2Reader);
 					}
-					ms2ReaderByFileName.put(spectraFileName, ms2Reader);
 				} catch (IllegalArgumentException e) {
 					log.warn(e.getMessage());
 				}
@@ -1058,7 +1060,10 @@ public class DTASelect2MzId {
 
 	private SpectrumIdentificationList getSpectrumIdentificationList(String fileID, LabeledSearchType lst)
 			throws IOException {
-		final String silID = "SIL_" + fileID + getNotNullUnderscoreAndSearchEngine() + "_" + lst.getKey();
+		String silID = "SIL_" + fileID + getNotNullUnderscoreAndSearchEngine();
+		if (!"".equals(lst.getKey())) {
+			silID += "_" + lst.getKey();
+		}
 		if (!spectrumIdentificationListMap.containsKey(silID)) {
 			SpectrumIdentificationList spectrumIdentificationList = new SpectrumIdentificationList();
 			spectrumIdentificationList.setId(silID);
@@ -1100,8 +1105,7 @@ public class DTASelect2MzId {
 
 			spectrumIdentificationList.setFragmentationTable(getFragmentationTable());
 
-			log.info("SpectrumIdentificationList associated with pre-fractionation step '" + fileID + "' and search '"
-					+ lst.name() + "' created.");
+			log.info("SpectrumIdentificationList '" + silID + "' created.");
 
 			// add to the map at the end
 			spectrumIdentificationListMap.put(silID, spectrumIdentificationList);
@@ -1150,11 +1154,15 @@ public class DTASelect2MzId {
 			final MS2Reader ms2Reader = ms2ReaderByFileName.get(spectraFileName);
 
 			if (referenceToSpectra == ReferenceToSpectra.MS2) {
-				final String key = dtaSelectPSM.getScanNumber() + "." + dtaSelectPSM.getScanNumber() + "."
-						+ dtaSelectPSM.getChargeState();
+				final String key = Integer.valueOf(dtaSelectPSM.getScanNumber()) + "."
+						+ Integer.valueOf(dtaSelectPSM.getScanNumber()) + "."
+						+ Integer.valueOf(dtaSelectPSM.getChargeState());
 				final Integer spectrumIndex = ms2Reader.getSpectrumIndexByScan(key);
 				if (spectrumIndex != null) {
 					spectrumID = "index=" + (spectrumIndex);
+				} else {
+					log.warn("Spectrum not found in ms2  '" + ms2Reader.getFileName() + "'. Scan number='"
+							+ dtaSelectPSM.getScanNumber() + "' charge state='" + dtaSelectPSM.getChargeState() + "'");
 				}
 			} else if (referenceToSpectra == ReferenceToSpectra.MZXML) {
 				spectrumID = "scan=" + dtaSelectPSM.getScanNumber();
@@ -1162,10 +1170,6 @@ public class DTASelect2MzId {
 			if (spectrumID != null) {
 				return spectrumID;
 			}
-
-			log.warn("Spectrum not found in ms2  '" + ms2Reader.getFileName() + "' for PSM '"
-					+ dtaSelectPSM.getPSMIdentifier() + "' scan='" + dtaSelectPSM.getScanNumber() + "' charge='"
-					+ dtaSelectPSM.getChargeState() + "'");
 
 		} else {
 			if (referenceToSpectra == ReferenceToSpectra.MZXML) {
