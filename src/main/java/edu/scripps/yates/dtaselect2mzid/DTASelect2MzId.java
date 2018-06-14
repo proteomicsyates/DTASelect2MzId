@@ -40,7 +40,6 @@ import org.proteored.miapeapi.cv.ms.SoftwareName;
 import org.proteored.miapeapi.cv.msi.Score;
 import org.proteored.miapeapi.cv.msi.SearchType;
 
-import edu.scripps.yates.dbindex.model.AssignMass;
 import edu.scripps.yates.dtaselect.ProteinDTASelectParser;
 import edu.scripps.yates.dtaselect.ProteinImplFromDTASelect;
 import edu.scripps.yates.dtaselect2mzid.util.DTASelect2MzIdUtil;
@@ -57,6 +56,7 @@ import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
+import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.masses.MassesUtil;
 import edu.scripps.yates.utilities.model.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
@@ -153,7 +153,7 @@ public class DTASelect2MzId {
 	private final List<File> dtaSelectFiles = new ArrayList<File>();
 	private final File output;
 	private ProteinDTASelectParser dtaSelectParser;
-
+	private final AssignMass assignMass = AssignMass.getInstance(true);
 	private SearchDatabase searchDatabase;
 
 	private final Map<String, DBSequence> dbSequences = new HashMap<String, DBSequence>();
@@ -938,9 +938,9 @@ public class DTASelect2MzId {
 			final char aa = aminoacids.charAt(index);
 			if (fixedModifications.containsKey(String.valueOf(aa))) {
 				ret.getResidue()
-						.add(getResidue(aa, AssignMass.getMass(aa) + fixedModifications.get(String.valueOf(aa))));
+						.add(getResidue(aa, assignMass.getMass(aa) + fixedModifications.get(String.valueOf(aa))));
 			} else {
-				ret.getResidue().add(getResidue(aa, AssignMass.getMass(aa)));
+				ret.getResidue().add(getResidue(aa, assignMass.getMass(aa)));
 			}
 		}
 		return ret;
@@ -981,11 +981,11 @@ public class DTASelect2MzId {
 		PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(monoMassDelta, residues);
 		if (peptideModUtil.getAccession() != null) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam(peptideModUtil.getAccession(), peptideModUtil.getName(),
-					null, DTASelect2MzIdUtil.getUnimodCv()).getCvParam());
+					null, DTASelect2MzIdUtil.getPsimodCv()).getCvParam());
 		} else {
 			ret.getCvParam()
 					.add(DTASelect2MzIdUtil
-							.getCVParam("MS:1001460", "unknown modification", null, DTASelect2MzIdUtil.getUnimodCv())
+							.getCVParam("MS:1001460", "unknown modification", null, DTASelect2MzIdUtil.getPSIMsCv())
 							.getCvParam());
 		}
 		if (nterm) {
@@ -1325,10 +1325,10 @@ public class DTASelect2MzId {
 		double diff = Math.abs(nonMono - mono);
 		double nonMonoTmp = mono;
 		while (true) {
-			nonMonoTmp += AssignMass.DIFFMASSC12C13 / charge;
+			nonMonoTmp += assignMass.DIFFMASSC12C13 / charge;
 			double tmpDiff = Math.abs(nonMonoTmp - nonMono);
 			if (tmpDiff > diff) {
-				final double ret = nonMonoTmp - AssignMass.DIFFMASSC12C13 / charge;
+				final double ret = nonMonoTmp - assignMass.DIFFMASSC12C13 / charge;
 				return ret;
 			}
 			diff = tmpDiff;
@@ -1789,7 +1789,7 @@ public class DTASelect2MzId {
 		ret.getResidues().add(peptideModUtil.getResidues());
 		if (peptideModUtil.getAccession() != null) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam(peptideModUtil.getAccession(), peptideModUtil.getName(),
-					null, DTASelect2MzIdUtil.getUnimodCv()).getCvParam());
+					null, DTASelect2MzIdUtil.getPsimodCv()).getCvParam());
 		} else {
 			ret.getCvParam()
 					.add(DTASelect2MzIdUtil

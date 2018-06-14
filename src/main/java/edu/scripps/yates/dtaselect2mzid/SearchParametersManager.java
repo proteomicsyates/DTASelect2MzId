@@ -440,11 +440,11 @@ public class SearchParametersManager {
 		PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(massDelta, residues);
 		if (peptideModUtil.getAccession() != null) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam(peptideModUtil.getAccession(), peptideModUtil.getName(),
-					null, DTASelect2MzIdUtil.getUnimodCv()).getCvParam());
+					null, DTASelect2MzIdUtil.getPsimodCv()).getCvParam());
 		} else {
 			ret.getCvParam()
 					.add(DTASelect2MzIdUtil
-							.getCVParam("MS:1001460", "unknown modification", null, DTASelect2MzIdUtil.getUnimodCv())
+							.getCVParam("MS:1001460", "unknown modification", null, DTASelect2MzIdUtil.getPSIMsCv())
 							.getCvParam());
 		}
 		if (nterm) {
