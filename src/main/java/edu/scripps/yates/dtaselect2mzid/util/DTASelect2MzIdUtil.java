@@ -17,11 +17,12 @@ import org.proteored.miapeapi.cv.ControlVocabularyTerm;
 import org.proteored.miapeapi.cv.LocalOboTestControlVocabularyManager;
 import org.proteored.miapeapi.cv.NEWTOntology;
 import org.proteored.miapeapi.cv.PSIMassSpectrometryOntology;
+import org.proteored.miapeapi.cv.PSIModOntology;
 import org.proteored.miapeapi.cv.UNIMODOntology;
 import org.proteored.miapeapi.cv.UnitOntology;
 import org.proteored.miapeapi.cv.ms.ContactPositionMS;
 
-import edu.scripps.yates.dbindex.model.AssignMass;
+import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
@@ -95,22 +96,31 @@ public class DTASelect2MzIdUtil {
 		ret.getCv().add(getPSIMsCv());
 		ret.getCv().add(getNEWTCv());
 		ret.getCv().add(getUoCv());
-		ret.getCv().add(getUnimodCv());
+		ret.getCv().add(getPsimodCv());
 		return ret;
 	}
 
 	public static Cv getUnimodCv() {
 		Cv ret = new Cv();
-		ret.setId(UNIMOD_ONTOLOGY_ID);
+		ret.setId(UNIMODOntology.getCVLabel());
 		ret.setFullName(UNIMODOntology.getFullName());
 		ret.setUri(UNIMODOntology.getAddress());
 		// ret.setVersion(UNIMODOntology.getVersion());
 		return ret;
 	}
 
+	public static Cv getPsimodCv() {
+		Cv ret = new Cv();
+		ret.setId(PSIModOntology.getCVLabel());
+		ret.setFullName(PSIModOntology.getFullName());
+		ret.setUri(PSIModOntology.getAddress());
+		// ret.setVersion(UNIMODOntology.getVersion());
+		return ret;
+	}
+
 	public static Cv getUoCv() {
 		Cv ret = new Cv();
-		ret.setId(UO_ONTOLOGY_ID);
+		ret.setId(UnitOntology.getCVLabel());
 		ret.setFullName(UnitOntology.getFullName());
 		ret.setUri(UnitOntology.getAddress());
 		// ret.setVersion(UnitOntology.getVersion());
@@ -119,7 +129,7 @@ public class DTASelect2MzIdUtil {
 
 	public static Cv getNEWTCv() {
 		Cv ret = new Cv();
-		ret.setId(NEWT_ONTOLOGY_ID);
+		ret.setId(NEWTOntology.getCVLabel());
 		ret.setFullName(NEWTOntology.getFullName());
 		ret.setUri(NEWTOntology.getAddress());
 		// ret.setVersion(NEWTOntology.getVersion());
@@ -225,11 +235,10 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static double getMonoMass(String sequence, ModificationParams modificationParams) {
-		AssignMass.getInstance(true);
 		double calculateMonoMass = 0.0;
 		for (int index = 0; index < sequence.length(); index++) {
 			final char aa = sequence.charAt(index);
-			calculateMonoMass += AssignMass.getMass(aa);
+			calculateMonoMass += AssignMass.getInstance(true).getMass(aa);
 			for (SearchModification searchModification : modificationParams.getSearchModification()) {
 				if (searchModification.isFixedMod() && searchModification.getResidues().contains(aa)) {
 					calculateMonoMass += searchModification.getMassDelta();
