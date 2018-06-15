@@ -1195,7 +1195,8 @@ public class DTASelect2MzId {
 		String path = getDTASelectFolder(dtaSelectFiles);
 
 		// substract the first letter
-		String lightfile = path + File.separator + fileName.substring(1, fileName.length()) + ".ms2";
+		String lightfile = path + File.separator + fileName.substring(1, fileName.length()) + "."
+				+ referenceToSpectra.name().toLowerCase();
 		File lf = new File(lightfile);
 		if (lf.exists()) {
 			// depending on the first letter will be one labeled search type or
