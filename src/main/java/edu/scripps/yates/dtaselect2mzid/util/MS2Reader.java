@@ -64,7 +64,7 @@ public class MS2Reader {
 						}
 					} else if (line.startsWith("I")) {
 						final String[] split = line.split("\\s");
-						if (split[1].equalsIgnoreCase("RetTime")) {
+						if (split[1].equalsIgnoreCase("RetTime") || split[1].equalsIgnoreCase("RTime")) {
 							try {
 								rt = Double.valueOf(split[2]);
 
