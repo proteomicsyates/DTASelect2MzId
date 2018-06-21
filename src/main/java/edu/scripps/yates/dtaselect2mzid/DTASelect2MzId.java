@@ -1196,7 +1196,12 @@ public class DTASelect2MzId {
 
 		// substract the first letter
 		String lightfile = path + File.separator + fileName.substring(1, fileName.length()) + "."
-				+ referenceToSpectra.name().toLowerCase();
+		// + referenceToSpectra.name().toLowerCase();\
+		// modification on Jun 21 2018
+		// after talking with Robin we just decided to only check for the
+		// presence of ms2 files with the "H", because if someone uses mzXML,
+		// then there is no option for Heavy searches
+				+ "ms2";
 		File lf = new File(lightfile);
 		if (lf.exists()) {
 			// depending on the first letter will be one labeled search type or
@@ -1452,12 +1457,14 @@ public class DTASelect2MzId {
 	private SpectraData getSpectraData(String fileID) throws IOException {
 		final LabeledSearchType labeledSearchTypeByFileName = getLabeledSearchTypeByFileName(fileID);
 		if (labeledSearchTypeByFileName != LabeledSearchType.LIGHT) {
-			// TODO
-			// fileID = fileID.substring(1, fileID.length());
+
+			fileID = fileID.substring(1);
 		}
+
 		if (spectraDataBySpectraFileName.containsKey(fileID)) {
 			return spectraDataBySpectraFileName.get(fileID);
 		}
+
 		SpectraData spectraData = new SpectraData();
 		spectraDataBySpectraFileName.put(fileID, spectraData);
 		String extension = null;
