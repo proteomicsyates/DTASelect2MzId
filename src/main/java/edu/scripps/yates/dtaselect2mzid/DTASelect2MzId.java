@@ -193,7 +193,7 @@ public class DTASelect2MzId {
 		if (dtaSelectFiles == null) {
 			throw new IllegalArgumentException("DTASelect files are null");
 		}
-		for (File file : dtaSelectFiles) {
+		for (final File file : dtaSelectFiles) {
 			addDTASelect(file);
 		}
 		output = outputMzIdentMLFile;
@@ -255,7 +255,7 @@ public class DTASelect2MzId {
 		if (!ignoreSpectra && referenceToSpectra == ReferenceToSpectra.MS2) {
 			final String path = getDTASelectFolder(dtaSelectFiles);
 			final Set<String> spectraFileFullPaths = dtaSelectParser.getSpectraFileFullPaths();
-			for (String spectraFileFullPath : spectraFileFullPaths) {
+			for (final String spectraFileFullPath : spectraFileFullPaths) {
 				// MS2Reader
 				try {
 					File ms2File = new File(spectraFileFullPath);
@@ -263,7 +263,7 @@ public class DTASelect2MzId {
 						ms2File = new File(path + File.separator + spectraFileFullPath + ".ms2");
 					}
 					if (ms2File.exists()) {
-						MS2Reader ms2Reader = new MS2Reader(ms2File);
+						final MS2Reader ms2Reader = new MS2Reader(ms2File);
 						log.info("Setting up ms2 reader for file: '" + ms2File.getAbsolutePath());
 						String spectraFileName = FilenameUtils.getBaseName(ms2File.getAbsolutePath());
 						if (ms2ReaderByFileName.containsKey(spectraFileName)) {
@@ -275,7 +275,7 @@ public class DTASelect2MzId {
 						}
 						ms2ReaderByFileName.put(spectraFileName, ms2Reader);
 					}
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 					log.warn(e.getMessage());
 				}
 			}
@@ -298,37 +298,37 @@ public class DTASelect2MzId {
 			writer.write(createMzIdentMLStartTag(m, mzIdentMLVersion, "DTASelect2MzId") + "\n");
 
 			log.info("Creating CvList element...");
-			CvList cvList = DTASelect2MzIdUtil.getCVList();
+			final CvList cvList = DTASelect2MzIdUtil.getCVList();
 			m.marshal(cvList, writer);
 			writer.write("\n");
 
 			//
 			log.info("Creating AnalysisSoftwareList element...");
-			AnalysisSoftwareList analysisSoftwareList = getAnalysisSoftwareList();
+			final AnalysisSoftwareList analysisSoftwareList = getAnalysisSoftwareList();
 			m.marshal(analysisSoftwareList, writer);
 			writer.write("\n");
 
 			log.info("Creating Provider element...");
-			Provider provider = getDefaultProvider();
+			final Provider provider = getDefaultProvider();
 			m.marshal(provider, writer);
 			writer.write("\n");
 
 			//
 			//
 			log.info("Creating AuditCollection element...");
-			AuditCollection auditCollection = getAuditCollection();
+			final AuditCollection auditCollection = getAuditCollection();
 			m.marshal(auditCollection, writer);
 			writer.write("\n");
 			//
 			log.info("Creating AnalysisSampleCollection element...");
-			AnalysisSampleCollection analysisSampleCollection = getAnalysisSampleCollection(true);
+			final AnalysisSampleCollection analysisSampleCollection = getAnalysisSampleCollection(true);
 			if (analysisSampleCollection != null) {
 				m.marshal(analysisSampleCollection, writer);
 				writer.write("\n");
 			}
 			//
 			log.info("Creating SequenceCollection element...");
-			SequenceCollection sequenceCollection = getSequenceCollection();
+			final SequenceCollection sequenceCollection = getSequenceCollection();
 			log.info("Sequence collection with " + sequenceCollection.getDBSequence().size() + " DBSequences, "
 					+ sequenceCollection.getPeptide().size() + " Peptides and "
 					+ sequenceCollection.getPeptideEvidence().size() + " PeptideEvidences");
@@ -337,21 +337,21 @@ public class DTASelect2MzId {
 
 			log.info("Creating SpectrumIdentificationResults...");
 			// get fisrt the spectra
-			for (PSM psm : dtaSelectParser.getPSMsByPSMID().values()) {
+			for (final PSM psm : dtaSelectParser.getPSMsByPSMID().values()) {
 				// System.out.println(psm.getMSRun().getRunId() + "\t" +
 				// psm.getPSMIdentifier());
-				SpectrumIdentificationResult specIdentRes = getSpectrumIdentificationResult(psm);
+				final SpectrumIdentificationResult specIdentRes = getSpectrumIdentificationResult(psm);
 			}
 			log.info(dtaSelectParser.getPSMsByPSMID().size() + " SpectrumIdentificationResult elements created");
 
 			//
 			log.info("Creating AnalysisCollection element...");
-			AnalysisCollection analysisCollection = getAnalysisCollection();
+			final AnalysisCollection analysisCollection = getAnalysisCollection();
 			m.marshal(analysisCollection, writer);
 			writer.write("\n");
 			//
 			log.info("Creating AnalysisProcoloCollection element...");
-			AnalysisProtocolCollection analysisProtocolCollection = getAnalysisProcotolCollection();
+			final AnalysisProtocolCollection analysisProtocolCollection = getAnalysisProcotolCollection();
 			m.marshal(analysisProtocolCollection, writer);
 			writer.write("\n");
 			writer.flush();
@@ -360,7 +360,7 @@ public class DTASelect2MzId {
 			writer.write(m.createDataCollectionStartTag() + "\n");
 			//
 			log.info("Creating Inputs element...");
-			Inputs inputs = getInputs();
+			final Inputs inputs = getInputs();
 			m.marshal(inputs, writer);
 			writer.write("\n");
 			//
@@ -370,8 +370,8 @@ public class DTASelect2MzId {
 			// one spectrumIdentificationList by each fileName
 			// (pre-fractionation) and each labelledSearchTag if
 			// available
-			for (String fileID : dtaSelectParser.getSpectraFileNames()) {
-				for (LabeledSearchType lst : LabeledSearchType.values()) {
+			for (final String fileID : dtaSelectParser.getSpectraFileNames()) {
+				for (final LabeledSearchType lst : LabeledSearchType.values()) {
 					final SpectrumIdentificationList sil = getSpectrumIdentificationList(fileID, lst);
 					if (sil != null) {
 
@@ -419,7 +419,7 @@ public class DTASelect2MzId {
 			if (!errorMessages.isEmpty()) {
 				System.err.println(
 						"Some modifications were not identified properly and were translated as 'unknown' modifications:");
-				for (String errorMessage : errorMessages) {
+				for (final String errorMessage : errorMessages) {
 					System.err.println(errorMessage);
 				}
 			}
@@ -433,15 +433,15 @@ public class DTASelect2MzId {
 
 	private void fixLines() {
 		try {
-			Path path = Paths.get(output.toURI());
-			Charset charset = StandardCharsets.UTF_8;
+			final Path path = Paths.get(output.toURI());
+			final Charset charset = StandardCharsets.UTF_8;
 
 			String content = new String(Files.readAllBytes(path), charset);
 			content = content.replaceAll("http://psidev.info/psi/pi/mzIdentML/1.1",
 					"http://psidev.info/psi/pi/mzIdentML/1.2");
 			Files.write(path, content.getBytes(charset));
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 
@@ -459,11 +459,11 @@ public class DTASelect2MzId {
 	}
 
 	private String createMzIdentMLStartTagForVersion_1_2(String id) {
-		StringBuffer sb = new StringBuffer();
-		String MZIDML_NS = "http://psidev.info/psi/pi/mzIdentML/1.2";
-		String MZIDML_VERSION = "1.2.0";
-		String MZIDML_SCHEMA = "https://raw.githubusercontent.com/HUPO-PSI/mzIdentML/master/schema/mzIdentML1.2.0-candidate.xsd";
-		String MZIDSCHEMA_LOCATION = "http://psidev.info/psi/pi/mzIdentML/1.2 " + MZIDML_SCHEMA;
+		final StringBuffer sb = new StringBuffer();
+		final String MZIDML_NS = "http://psidev.info/psi/pi/mzIdentML/1.2";
+		final String MZIDML_VERSION = "1.2.0";
+		final String MZIDML_SCHEMA = "https://raw.githubusercontent.com/HUPO-PSI/mzIdentML/master/schema/mzIdentML1.2.0-candidate.xsd";
+		final String MZIDSCHEMA_LOCATION = "http://psidev.info/psi/pi/mzIdentML/1.2 " + MZIDML_SCHEMA;
 		// tag opening plus id attribute
 		sb.append("<MzIdentML id=\"").append(id).append("\"");
 		// further attributes
@@ -471,7 +471,7 @@ public class DTASelect2MzId {
 		sb.append(" xmlns=\"").append(MZIDML_NS).append("\"");
 		sb.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 		sb.append(" xsi:schemaLocation=\"").append(MZIDSCHEMA_LOCATION).append("\"");
-		DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		final DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		sb.append(" creationDate=\"").append(dfm.format(getCreationDate())).append("\"");
 		// finally close the tag
 		sb.append(" >");
@@ -481,12 +481,12 @@ public class DTASelect2MzId {
 
 	private Date getCreationDate() {
 		if (dtaSelectFiles != null && !dtaSelectFiles.isEmpty()) {
-			for (File file : dtaSelectFiles) {
+			for (final File file : dtaSelectFiles) {
 				try {
-					BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+					final BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
 					final Date date = new Date(attr.creationTime().toMillis());
 					return date;
-				} catch (IOException e) {
+				} catch (final IOException e) {
 				}
 			}
 		}
@@ -504,12 +504,12 @@ public class DTASelect2MzId {
 			log.info("Grouping  " + dtaSelectParser.getProteins().size()
 					+ " proteins according to PAnalyzer algorithm...");
 			groups = new ArrayList<ProteinGroup>();
-			Set<GroupableProtein> groupableProteins = new HashSet<GroupableProtein>();
-			for (Set<Protein> proteinSet : dtaSelectParser.getProteins().values()) {
+			final Set<GroupableProtein> groupableProteins = new HashSet<GroupableProtein>();
+			for (final Set<Protein> proteinSet : dtaSelectParser.getProteins().values()) {
 
 				groupableProteins.addAll(proteinSet);
 			}
-			PAnalyzer panalyzer = new PAnalyzer(true);
+			final PAnalyzer panalyzer = new PAnalyzer(true);
 			groups = panalyzer.run(groupableProteins);
 			log.info("Proteins grouped in " + groups.size() + " groups.");
 		}
@@ -518,20 +518,20 @@ public class DTASelect2MzId {
 	}
 
 	private ProteinAmbiguityGroup getProteinAmbiguityGroup(ProteinGroup group) throws IOException {
-		String pagKey = getProteinAmbiguityGroupKey(group);
+		final String pagKey = getProteinAmbiguityGroupKey(group);
 		if (pag.containsKey(pagKey)) {
 			return pag.get(pagKey);
 		}
-		ProteinAmbiguityGroup ret = new ProteinAmbiguityGroup();
+		final ProteinAmbiguityGroup ret = new ProteinAmbiguityGroup();
 		pag.put(pagKey, ret);
 		ret.setId(pagKey);
 		final Map<String, Set<Protein>> proteinsByAcc = getProteinsByAcc(group);
 		final Map<String, ProteinEvidence> evidences = new HashMap<String, ProteinEvidence>();
-		for (String acc : proteinsByAcc.keySet()) {
+		for (final String acc : proteinsByAcc.keySet()) {
 			evidences.put(acc, proteinsByAcc.get(acc).iterator().next().getEvidence());
 		}
-		for (String acc : proteinsByAcc.keySet()) {
-			Set<Protein> proteinSet = proteinsByAcc.get(acc);
+		for (final String acc : proteinsByAcc.keySet()) {
+			final Set<Protein> proteinSet = proteinsByAcc.get(acc);
 			ret.getProteinDetectionHypothesis().add(getProteinDetectionHypothesis(proteinSet));
 		}
 
@@ -541,13 +541,13 @@ public class DTASelect2MzId {
 	}
 
 	private Map<String, Set<Protein>> getProteinsByAcc(ProteinGroup group) {
-		Map<String, Set<Protein>> map = new HashMap<String, Set<Protein>>();
-		for (GroupableProtein groupableProtein : group) {
+		final Map<String, Set<Protein>> map = new HashMap<String, Set<Protein>>();
+		for (final GroupableProtein groupableProtein : group) {
 			final String accession = groupableProtein.getAccession();
 			if (map.containsKey(accession)) {
 				map.get(accession).add((Protein) groupableProtein);
 			} else {
-				Set<Protein> set = new HashSet<Protein>();
+				final Set<Protein> set = new HashSet<Protein>();
 				set.add((Protein) groupableProtein);
 				map.put(accession, set);
 			}
@@ -556,16 +556,16 @@ public class DTASelect2MzId {
 	}
 
 	private String getProteinAmbiguityGroupKey(ProteinGroup group) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		List<String> pdhIds = new ArrayList<String>();
+		final StringBuilder sb = new StringBuilder();
+		final List<String> pdhIds = new ArrayList<String>();
 		final Map<String, Set<Protein>> proteinsByAcc = getProteinsByAcc(group);
-		for (Set<Protein> proteinSet : proteinsByAcc.values()) {
+		for (final Set<Protein> proteinSet : proteinsByAcc.values()) {
 			final String pdhId = getProteinDetectionHypothesis(proteinSet).getId();
 			if (!pdhIds.contains(pdhId)) {
 				pdhIds.add(pdhId);
 			}
 		}
-		for (String pdhId : pdhIds) {
+		for (final String pdhId : pdhIds) {
 			if (!"".equals(sb.toString())) {
 				sb.append("_");
 			}
@@ -586,13 +586,13 @@ public class DTASelect2MzId {
 			throws IOException {
 		// we assume that the evidence of all proteins in the collection is the
 		// same
-		Protein protein1 = dtaSelectProteins.iterator().next();
+		final Protein protein1 = dtaSelectProteins.iterator().next();
 		final DBSequence dbSequence = getDBSequence(protein1);
 		final String pdhid = getPDHID(dbSequence);
 		if (pdhMapByID.containsKey(pdhid)) {
 			return pdhMapByID.get(pdhid);
 		}
-		ProteinDetectionHypothesis pdh = new ProteinDetectionHypothesis();
+		final ProteinDetectionHypothesis pdh = new ProteinDetectionHypothesis();
 		pdhMapByID.put(pdhid, pdh);
 		pdh.setId(pdhid);
 		pdh.setDBSequence(dbSequence);
@@ -649,7 +649,7 @@ public class DTASelect2MzId {
 		// }
 
 		if (protein1 instanceof ProteinImplFromDTASelect) {
-			ProteinImplFromDTASelect proteinTmp = (ProteinImplFromDTASelect) protein1;
+			final ProteinImplFromDTASelect proteinTmp = (ProteinImplFromDTASelect) protein1;
 			// protein coverage
 			pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(PROTEIN_COVERAGE_CV, "sequence coverage",
 					myFormatter.format(proteinTmp.getCoverage()), psiMsCv).getCvParam());
@@ -664,17 +664,17 @@ public class DTASelect2MzId {
 					myFormatter.format(proteinTmp.getNSAFNorm()), psiMsCv).getCvParam());
 		}
 		// distinct peptide sequences
-		Set<PSM> psms = DTASelect2MzIdUtil.getPsms(dtaSelectProteins);
-		Set<String> sequences = new HashSet<String>();
-		for (PSM psm : psms) {
+		final Set<PSM> psms = DTASelect2MzIdUtil.getPsms(dtaSelectProteins);
+		final Set<String> sequences = new HashSet<String>();
+		for (final PSM psm : psms) {
 			sequences.add(psm.getSequence());
 		}
-		int distinctPeptideSequences = sequences.size();
+		final int distinctPeptideSequences = sequences.size();
 		pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(DISTINCT_PEP_SEQUENCSE, "distinct peptide sequences",
 				String.valueOf(distinctPeptideSequences), psiMsCv).getCvParam());
-		for (Protein protein : dtaSelectProteins) {
+		for (final Protein protein : dtaSelectProteins) {
 			final Set<PSM> psMs = protein.getPSMs();
-			for (PSM dtaSelectPSM : psMs) {
+			for (final PSM dtaSelectPSM : psMs) {
 				final PeptideHypothesis peptideHypothesis = getPeptideHypothesis(protein, dtaSelectPSM);
 				if (!pdh.getPeptideHypothesis().contains(peptideHypothesis)) {
 					pdh.getPeptideHypothesis().add(peptideHypothesis);
@@ -692,13 +692,13 @@ public class DTASelect2MzId {
 		final SpectrumIdentificationItemRef siiref = getSpectrumIdentificationItemRef(dtaSelectPSM);
 		final PeptideEvidence pe = getPeptideEvidence(dtaSelectPSM, dtaSelectProtein, null);
 		if (!phByPeptideEvidence.containsKey(pe.getId())) {
-			PeptideHypothesis ph = new PeptideHypothesis();
+			final PeptideHypothesis ph = new PeptideHypothesis();
 			ph.setPeptideEvidence(pe);
 			phByPeptideEvidence.put(pe.getId(), ph);
 		}
 		final PeptideHypothesis peptideHypothesis = phByPeptideEvidence.get(pe.getId());
 		boolean found = false;
-		for (SpectrumIdentificationItemRef siiref2 : peptideHypothesis.getSpectrumIdentificationItemRef()) {
+		for (final SpectrumIdentificationItemRef siiref2 : peptideHypothesis.getSpectrumIdentificationItemRef()) {
 			if (siiref2.getSpectrumIdentificationItemRef().equals(siiref.getSpectrumIdentificationItemRef())) {
 				found = true;
 			}
@@ -710,7 +710,7 @@ public class DTASelect2MzId {
 	}
 
 	private SpectrumIdentificationItemRef getSpectrumIdentificationItemRef(PSM dtaSelectPSM) throws IOException {
-		SpectrumIdentificationItemRef siref = new SpectrumIdentificationItemRef();
+		final SpectrumIdentificationItemRef siref = new SpectrumIdentificationItemRef();
 		siref.setSpectrumIdentificationItem(getSpectrumIdentificationItem(dtaSelectPSM));
 		return siref;
 	}
@@ -726,16 +726,16 @@ public class DTASelect2MzId {
 	}
 
 	private Inputs getInputs() throws IOException {
-		Inputs ret = new Inputs();
+		final Inputs ret = new Inputs();
 		ret.getSearchDatabase().add(getFastaDBSequence());
 		int i = 1;
-		for (File file : dtaSelectFiles) {
+		for (final File file : dtaSelectFiles) {
 			ret.getSourceFile().add(getSourceFile("DTASelect_" + i++, file));
 		}
-		for (LabeledSearchType lst : LabeledSearchType.values()) {
+		for (final LabeledSearchType lst : LabeledSearchType.values()) {
 			final List<InputSpectra> inputSpectraList = getInputSpectraList(lst);
-			Set<String> spectradataIds = new HashSet<String>();
-			for (InputSpectra inputSpectra : inputSpectraList) {
+			final Set<String> spectradataIds = new HashSet<String>();
+			for (final InputSpectra inputSpectra : inputSpectraList) {
 				final SpectraData spectraData = inputSpectra.getSpectraData();
 				if (!spectradataIds.contains(spectraData.getId())) {
 					ret.getSpectraData().add(spectraData);
@@ -747,16 +747,16 @@ public class DTASelect2MzId {
 	}
 
 	private SourceFile getSourceFile(String id, File file) {
-		SourceFile ret = new SourceFile();
+		final SourceFile ret = new SourceFile();
 		ret.setFileFormat(getDtaSelectFileFormat());
 		ret.setId(id);
 		ret.setLocation(file.getAbsolutePath());
 		ret.setName(FilenameUtils.getName(file.getAbsolutePath()));
 		try {
-			String md5Checksum = MD5Checksum.getMD5ChecksumFromFileName(file);
+			final String md5Checksum = MD5Checksum.getMD5ChecksumFromFileName(file);
 			ret.getCvParam().add(DTASelect2MzIdUtil
 					.getCVParam("MS:1000568", "MD5", md5Checksum, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 
@@ -764,9 +764,9 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisProtocolCollection getAnalysisProcotolCollection() throws IOException {
-		AnalysisProtocolCollection ret = new AnalysisProtocolCollection();
+		final AnalysisProtocolCollection ret = new AnalysisProtocolCollection();
 		ret.setProteinDetectionProtocol(getProteinDetectionProtocol());
-		for (LabeledSearchType lst : LabeledSearchType.values()) {
+		for (final LabeledSearchType lst : LabeledSearchType.values()) {
 			final SpectrumIdentificationProtocol spectrumIdentificationProtocol = getSpectrumIdentificationProtocol(
 					lst);
 			if (spectrumIdentificationProtocol != null) {
@@ -778,9 +778,9 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisCollection getAnalysisCollection() throws IOException {
-		AnalysisCollection ret = new AnalysisCollection();
+		final AnalysisCollection ret = new AnalysisCollection();
 		ret.setProteinDetection(getProteinDetection());
-		for (String spectraFileName : dtaSelectParser.getSpectraFileNames()) {
+		for (final String spectraFileName : dtaSelectParser.getSpectraFileNames()) {
 			final SpectrumIdentification spectrumIdentification = getSpectrumIdentification(spectraFileName);
 			// check if not already there
 			if (!ret.getSpectrumIdentification().contains(spectrumIdentification)) {
@@ -798,7 +798,7 @@ public class DTASelect2MzId {
 			final SpectrumIdentificationProtocol sip = getSpectrumIdentificationProtocol(lst);
 			// only if there is a sip, create the si
 			if (sip != null) {
-				SpectrumIdentification si = new SpectrumIdentification();
+				final SpectrumIdentification si = new SpectrumIdentification();
 				si.setId(siID);
 				final SpectrumIdentificationList sil = getSpectrumIdentificationList(fileID, lst);
 				if (sil != null) {
@@ -816,16 +816,16 @@ public class DTASelect2MzId {
 	}
 
 	private SearchDatabaseRef getSearchDatabaseRef() throws IOException {
-		SearchDatabaseRef ret = new SearchDatabaseRef();
+		final SearchDatabaseRef ret = new SearchDatabaseRef();
 		ret.setSearchDatabase(getFastaDBSequence());
 		return ret;
 	}
 
 	private List<InputSpectra> getInputSpectraList(String fileID, LabeledSearchType lst) throws IOException {
-		List<InputSpectra> ret = new ArrayList<InputSpectra>();
-		Set<String> spectraFileNames = dtaSelectParser.getSpectraFileNames();
-		Set<String> spectraDataIds = new HashSet<String>();
-		for (String spectraFileName : spectraFileNames) {
+		final List<InputSpectra> ret = new ArrayList<InputSpectra>();
+		final Set<String> spectraFileNames = dtaSelectParser.getSpectraFileNames();
+		final Set<String> spectraDataIds = new HashSet<String>();
+		for (final String spectraFileName : spectraFileNames) {
 			if (spectraFileName.equals(fileID)) {
 				final LabeledSearchType labeledSearchTypeByFileName = getLabeledSearchTypeByFileName(spectraFileName);
 				if (labeledSearchTypeByFileName != LabeledSearchType.LIGHT) {
@@ -845,10 +845,10 @@ public class DTASelect2MzId {
 	}
 
 	private List<InputSpectra> getInputSpectraList(LabeledSearchType lst) throws IOException {
-		List<InputSpectra> ret = new ArrayList<InputSpectra>();
-		Set<String> spectraFileNames = dtaSelectParser.getSpectraFileNames();
-		Set<String> spectraDataIds = new HashSet<String>();
-		for (String spectraFileName2 : spectraFileNames) {
+		final List<InputSpectra> ret = new ArrayList<InputSpectra>();
+		final Set<String> spectraFileNames = dtaSelectParser.getSpectraFileNames();
+		final Set<String> spectraDataIds = new HashSet<String>();
+		for (final String spectraFileName2 : spectraFileNames) {
 			if (getLabeledSearchTypeByFileName(spectraFileName2) == lst) {
 				if (!spectraDataIds.contains(spectraFileName2)) {
 					final InputSpectra inputSpetra = getInputSpetra(spectraFileName2);
@@ -862,14 +862,14 @@ public class DTASelect2MzId {
 	}
 
 	private InputSpectra getInputSpetra(String spectraFileName) throws IOException {
-		InputSpectra ret = new InputSpectra();
+		final InputSpectra ret = new InputSpectra();
 		ret.setSpectraData(getSpectraData(spectraFileName));
 		return ret;
 	}
 
 	private SpectrumIdentificationProtocol getSpectrumIdentificationProtocol(LabeledSearchType lst) throws IOException {
 		if (!sipByLST.containsKey(lst)) {
-			SpectrumIdentificationProtocol sip = new SpectrumIdentificationProtocol();
+			final SpectrumIdentificationProtocol sip = new SpectrumIdentificationProtocol();
 			// set analysis software to DTASelect
 			// otherwise PRIDE Inspector fails
 			String key = lst.getKey();
@@ -891,7 +891,7 @@ public class DTASelect2MzId {
 			if (spectrumThreshold != null) {
 				sip.setThreshold(spectrumThreshold);
 			} else {
-				ParamList paramList = new ParamList();
+				final ParamList paramList = new ParamList();
 				paramList.getCvParam().add(DTASelect2MzIdUtil
 						.getCVParam("MS:1001494", "no threshold", null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 				sip.setThreshold(paramList);
@@ -915,7 +915,7 @@ public class DTASelect2MzId {
 
 	private MassTable getMassTable(LabeledSearchType lst) {
 		// create a map with the used modifications
-		Map<String, Float> fixedModifications = new HashMap<String, Float>();
+		final Map<String, Float> fixedModifications = new HashMap<String, Float>();
 		// final ModificationParams modificationParams2 =
 		// getModificationParams(lst);
 		// for (SearchModification searchModification :
@@ -928,26 +928,26 @@ public class DTASelect2MzId {
 		// }
 		// }
 
-		MassTable ret = new MassTable();
+		final MassTable ret = new MassTable();
 		ret.setId("MT_" + lst.getKey());
 		ret.setName("mass table");
 		ret.getMsLevel().add(2);
-		String aminoacids = "GASPVTCLIXNOBDQKZEMHFRYW";
+		final String aminoacids = "GASPVTCLIXNOBDQKZEMHFRYW";
 		AssignMass.getInstance(true);
 		for (int index = 0; index < aminoacids.length() - 1; index++) {
 			final char aa = aminoacids.charAt(index);
 			if (fixedModifications.containsKey(String.valueOf(aa))) {
 				ret.getResidue()
-						.add(getResidue(aa, assignMass.getMass(aa) + fixedModifications.get(String.valueOf(aa))));
+						.add(getResidue(aa, AssignMass.getMass(aa) + fixedModifications.get(String.valueOf(aa))));
 			} else {
-				ret.getResidue().add(getResidue(aa, assignMass.getMass(aa)));
+				ret.getResidue().add(getResidue(aa, AssignMass.getMass(aa)));
 			}
 		}
 		return ret;
 	}
 
 	private Residue getResidue(char aa, double mass) {
-		Residue ret = new Residue();
+		final Residue ret = new Residue();
 		ret.setCode(String.valueOf(aa));
 		ret.setMass(Double.valueOf(mass).floatValue());
 		return ret;
@@ -968,17 +968,17 @@ public class DTASelect2MzId {
 	 */
 	private Modification getModification(String residues, Integer location, Double monoMassDelta, Double avgMassDelta,
 			boolean nterm, boolean cterm) {
-		Modification ret = new Modification();
+		final Modification ret = new Modification();
 		ret.setMonoisotopicMassDelta(monoMassDelta);
 		ret.setAvgMassDelta(avgMassDelta);
 		ret.setLocation(location);
 		if (residues != null) {
 			for (int i = 0; i < residues.length(); i++) {
-				String aa = String.valueOf(residues.charAt(i));
+				final String aa = String.valueOf(residues.charAt(i));
 				ret.getResidues().add(aa);
 			}
 		}
-		PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(monoMassDelta, residues);
+		final PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(monoMassDelta, residues);
 		if (peptideModUtil.getAccession() != null) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam(peptideModUtil.getAccession(), peptideModUtil.getName(),
 					null, DTASelect2MzIdUtil.getPsimodCv()).getCvParam());
@@ -1002,7 +1002,7 @@ public class DTASelect2MzId {
 	private ParamList getSpectrumThreshold() throws IOException {
 
 		if (dtaSelectParser.getCommandLineParameter().getParametersMap().containsKey("--fp")) {
-			ParamList ret = new ParamList();
+			final ParamList ret = new ParamList();
 			ret.getCvParam()
 					.add(DTASelect2MzIdUtil.getCVParam("MS:1001448", "Pep:FDR threshold",
 							dtaSelectParser.getCommandLineParameter().getParameterValue("--fp"),
@@ -1017,18 +1017,18 @@ public class DTASelect2MzId {
 	}
 
 	private Param getMSMSSearchType() {
-		ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(MSMSSearchType,
+		final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(MSMSSearchType,
 				SearchType.getInstance(cvManager));
 		return DTASelect2MzIdUtil.getCVParam(cvTerm, null);
 	}
 
 	private ProteinDetection getProteinDetection() throws IOException {
-		ProteinDetection ret = new ProteinDetection();
+		final ProteinDetection ret = new ProteinDetection();
 		ret.setId("PD");
 		ret.setProteinDetectionList(getProteinDetectionList());
 		ret.setProteinDetectionProtocol(getProteinDetectionProtocol());
-		for (String fileID : dtaSelectParser.getSpectraFileNames()) {
-			for (LabeledSearchType lst : LabeledSearchType.values()) {
+		for (final String fileID : dtaSelectParser.getSpectraFileNames()) {
+			for (final LabeledSearchType lst : LabeledSearchType.values()) {
 				final InputSpectrumIdentifications inputSpectrumIdentification = getInputSpectrumIdentification(fileID,
 						lst);
 				if (inputSpectrumIdentification != null) {
@@ -1041,7 +1041,7 @@ public class DTASelect2MzId {
 
 	private InputSpectrumIdentifications getInputSpectrumIdentification(String fileID, LabeledSearchType lst)
 			throws IOException {
-		InputSpectrumIdentifications ret = new InputSpectrumIdentifications();
+		final InputSpectrumIdentifications ret = new InputSpectrumIdentifications();
 		final SpectrumIdentificationList spectrumIdentificationList = getSpectrumIdentificationList(fileID, lst);
 		if (spectrumIdentificationList == null) {
 			return null;
@@ -1051,7 +1051,7 @@ public class DTASelect2MzId {
 	}
 
 	private String getNotNullUnderscoreAndSearchEngine() throws IOException {
-		AnalysisSoftware searchEngine = getSearchEngine();
+		final AnalysisSoftware searchEngine = getSearchEngine();
 		if (searchEngine != null && searchEngine.getId() != null) {
 			return "_" + searchEngine.getId();
 		}
@@ -1065,14 +1065,14 @@ public class DTASelect2MzId {
 			silID += "_" + lst.getKey();
 		}
 		if (!spectrumIdentificationListMap.containsKey(silID)) {
-			SpectrumIdentificationList spectrumIdentificationList = new SpectrumIdentificationList();
+			final SpectrumIdentificationList spectrumIdentificationList = new SpectrumIdentificationList();
 			spectrumIdentificationList.setId(silID);
 
 			spectrumIdentificationList.setNumSequencesSearched(getNumSeqSearched());
 
 			final Map<String, PSM> dtaSelectPSMsByPSMID = dtaSelectParser.getPSMsByPSMID();
 			boolean atLeastOnePSM = false;
-			for (PSM psm : dtaSelectPSMsByPSMID.values()) {
+			for (final PSM psm : dtaSelectPSMsByPSMID.values()) {
 				// include the PSM only if it was searched in the
 				// prefractionation step
 				if (psm.getMSRun().getRunId().equals(fileID)) {
@@ -1120,7 +1120,7 @@ public class DTASelect2MzId {
 		if (sirMap.containsKey(sir_id)) {
 			return sirMap.get(sir_id);
 		} else {
-			SpectrumIdentificationResult sir = new SpectrumIdentificationResult();
+			final SpectrumIdentificationResult sir = new SpectrumIdentificationResult();
 			sirMap.put(sir_id, sir);
 
 			sir.setId(sir_id);
@@ -1139,7 +1139,7 @@ public class DTASelect2MzId {
 
 	private String getSpectrumIdentificationResultID(PSM dtaSelectPSM) {
 		final String spectrumID = getSpectrumID(dtaSelectPSM);
-		String spectraFileName = dtaSelectPSM.getMSRun().getRunId();
+		final String spectraFileName = dtaSelectPSM.getMSRun().getRunId();
 		final String sir_id = spectraFileName + "_Spec_" + spectrumID;
 		return sir_id;
 	}
@@ -1192,22 +1192,22 @@ public class DTASelect2MzId {
 		if (labeledSearchTypeByFileName.containsKey(fileName)) {
 			return labeledSearchTypeByFileName.get(fileName);
 		}
-		String path = getDTASelectFolder(dtaSelectFiles);
+		final String path = getDTASelectFolder(dtaSelectFiles);
 
 		// substract the first letter
-		String lightfile = path + File.separator + fileName.substring(1, fileName.length()) + "."
+		final String lightfile = path + File.separator + fileName.substring(1, fileName.length()) + "."
 		// + referenceToSpectra.name().toLowerCase();\
 		// modification on Jun 21 2018
 		// after talking with Robin we just decided to only check for the
 		// presence of ms2 files with the "H", because if someone uses mzXML,
 		// then there is no option for Heavy searches
 				+ "ms2";
-		File lf = new File(lightfile);
+		final File lf = new File(lightfile);
 		if (lf.exists()) {
 			// depending on the first letter will be one labeled search type or
 			// the other
-			String key = fileName.substring(0, 1);
-			for (LabeledSearchType labeledSearchType : LabeledSearchType.values()) {
+			final String key = fileName.substring(0, 1);
+			for (final LabeledSearchType labeledSearchType : LabeledSearchType.values()) {
 				if (labeledSearchType.getKey().equals(key)) {
 					labeledSearchTypeByFileName.put(fileName, labeledSearchType);
 					return labeledSearchType;
@@ -1241,7 +1241,7 @@ public class DTASelect2MzId {
 			final SpectrumIdentificationItem spectrumIdentificationItem = siiMap.get(siiID);
 			return spectrumIdentificationItem;
 		} else {
-			SpectrumIdentificationItem ret = new SpectrumIdentificationItem();
+			final SpectrumIdentificationItem ret = new SpectrumIdentificationItem();
 			ret.setId(siiID);
 			siiMap.put(siiID, ret);
 
@@ -1258,7 +1258,7 @@ public class DTASelect2MzId {
 
 			try {
 				ret.setChargeState(charge);
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 
 			}
 			if (dtaSelectPSM.getPI() != null) {
@@ -1272,8 +1272,8 @@ public class DTASelect2MzId {
 
 			// peptide evidences
 			final Set<Protein> proteins = dtaSelectPSM.getProteins();
-			Set<String> peptideEvidenceIds = new HashSet<String>();
-			for (Protein dtaSelectProtein : proteins) {
+			final Set<String> peptideEvidenceIds = new HashSet<String>();
+			for (final Protein dtaSelectProtein : proteins) {
 				final PeptideEvidenceRef peptideEvidenceRef = getPeptideEvidenceRef(dtaSelectPSM, dtaSelectProtein);
 				if (!peptideEvidenceIds.contains(peptideEvidenceRef.getPeptideEvidenceRef())) {
 					ret.getPeptideEvidenceRef().add(peptideEvidenceRef);
@@ -1281,12 +1281,12 @@ public class DTASelect2MzId {
 				}
 			}
 			// scores
-			Double deltaCn = getDeltaCn(dtaSelectPSM);
+			final Double deltaCn = getDeltaCn(dtaSelectPSM);
 			if (deltaCn != null) {
 				ret.getCvParam().add(getDeltaCnScore(deltaCn));
 			}
 
-			Double xCorr = getXCorr(dtaSelectPSM);
+			final Double xCorr = getXCorr(dtaSelectPSM);
 			if (xCorr != null) {
 				ret.getCvParam().add(getXCorrScore(xCorr));
 			}
@@ -1315,7 +1315,7 @@ public class DTASelect2MzId {
 		double monoMZApproached = nonMonoMZ;
 		while (true) {
 			monoMZApproached -= AssignMass.DIFFMASSC12C13 / charge;
-			double tmpDiff = Math.abs(monoMZApproached - monoMZToApproach);
+			final double tmpDiff = Math.abs(monoMZApproached - monoMZToApproach);
 			if (tmpDiff > diff) {
 				final double ret = monoMZApproached + AssignMass.DIFFMASSC12C13 / charge;
 				return ret;
@@ -1331,10 +1331,10 @@ public class DTASelect2MzId {
 		double diff = Math.abs(nonMono - mono);
 		double nonMonoTmp = mono;
 		while (true) {
-			nonMonoTmp += assignMass.DIFFMASSC12C13 / charge;
-			double tmpDiff = Math.abs(nonMonoTmp - nonMono);
+			nonMonoTmp += AssignMass.DIFFMASSC12C13 / charge;
+			final double tmpDiff = Math.abs(nonMonoTmp - nonMono);
 			if (tmpDiff > diff) {
-				final double ret = nonMonoTmp - assignMass.DIFFMASSC12C13 / charge;
+				final double ret = nonMonoTmp - AssignMass.DIFFMASSC12C13 / charge;
 				return ret;
 			}
 			diff = tmpDiff;
@@ -1342,7 +1342,7 @@ public class DTASelect2MzId {
 	}
 
 	private CvParam getScanStartTimeCV(PSM psm) {
-		Double scanStartTime = getScanStartTime(psm);
+		final Double scanStartTime = getScanStartTime(psm);
 		if (scanStartTime != null) {
 			final ControlVocabularyTerm cvTerm = DTASelect2MzIdUtil.getCvTermByAcc(SCAN_START_TIME_CV,
 					SpectrumIdentificationResultDetailsCVSet.getInstance(cvManager));
@@ -1368,13 +1368,13 @@ public class DTASelect2MzId {
 		try {
 			if (psm != null) {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.Score> scores = psm.getScores();
-				for (edu.scripps.yates.utilities.proteomicsmodel.Score score : scores) {
+				for (final edu.scripps.yates.utilities.proteomicsmodel.Score score : scores) {
 					if (score.getScoreName().toLowerCase().contains("deltacn")) {
 						return Double.valueOf(score.getValue());
 					}
 				}
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 		}
 		return null;
 	}
@@ -1383,13 +1383,13 @@ public class DTASelect2MzId {
 		try {
 			if (psm != null) {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.Score> scores = psm.getScores();
-				for (edu.scripps.yates.utilities.proteomicsmodel.Score score : scores) {
+				for (final edu.scripps.yates.utilities.proteomicsmodel.Score score : scores) {
 					if (score.getScoreName().toLowerCase().contains("xcorr")) {
 						return Double.valueOf(score.getValue());
 					}
 				}
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 		}
 		return null;
 	}
@@ -1439,7 +1439,7 @@ public class DTASelect2MzId {
 	}
 
 	private PeptideEvidenceRef getPeptideEvidenceRef(PSM dtaSelectPSM, Protein dtaSelectProtein) throws IOException {
-		PeptideEvidenceRef ret = new PeptideEvidenceRef();
+		final PeptideEvidenceRef ret = new PeptideEvidenceRef();
 		ret.setPeptideEvidence(getPeptideEvidence(dtaSelectPSM, dtaSelectProtein, null));
 		return ret;
 	}
@@ -1465,7 +1465,7 @@ public class DTASelect2MzId {
 			return spectraDataBySpectraFileName.get(fileID);
 		}
 
-		SpectraData spectraData = new SpectraData();
+		final SpectraData spectraData = new SpectraData();
 		spectraDataBySpectraFileName.put(fileID, spectraData);
 		String extension = null;
 		if (referenceToSpectra == ReferenceToSpectra.MS2) {
@@ -1485,7 +1485,7 @@ public class DTASelect2MzId {
 	}
 
 	private SpectrumIDFormat getSpectrumIDFormat() {
-		SpectrumIDFormat ret = new SpectrumIDFormat();
+		final SpectrumIDFormat ret = new SpectrumIDFormat();
 		if (referenceToSpectra == ReferenceToSpectra.MS2) {
 			ret.setCvParam(DTASelect2MzIdUtil.getCVParam("MS:1000774", "multiple peak list nativeID format", null,
 					DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
@@ -1502,21 +1502,21 @@ public class DTASelect2MzId {
 	}
 
 	private FileFormat getMS2FileFormat() {
-		FileFormat format = new FileFormat();
+		final FileFormat format = new FileFormat();
 		format.setCvParam(DTASelect2MzIdUtil
 				.getCVParam(MS2_FORMAT_CV, "MS2 format", null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 		return format;
 	}
 
 	private FileFormat getMzXMLFileFormat() {
-		FileFormat format = new FileFormat();
+		final FileFormat format = new FileFormat();
 		format.setCvParam(DTASelect2MzIdUtil
 				.getCVParam(MzXML_FORMAT_CV, "ISB mzXML format", null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 		return format;
 	}
 
 	private FileFormat getDtaSelectFileFormat() {
-		FileFormat format = new FileFormat();
+		final FileFormat format = new FileFormat();
 		format.setCvParam(DTASelect2MzIdUtil
 				.getCVParam(DTASELECT_FORMAT_CV, "DTASelect format", null, DTASelect2MzIdUtil.getPSIMsCv())
 				.getCvParam());
@@ -1532,7 +1532,7 @@ public class DTASelect2MzId {
 			if (proteinThreshold != null) {
 				pdp.setThreshold(proteinThreshold);
 			} else {
-				ParamList paramList = new ParamList();
+				final ParamList paramList = new ParamList();
 				paramList.getCvParam().add(DTASelect2MzIdUtil
 						.getCVParam("MS:1001494", "no threshold", null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 				pdp.setThreshold(paramList);
@@ -1543,7 +1543,7 @@ public class DTASelect2MzId {
 
 	private ParamList getProteinThreshold() throws IOException {
 		if (dtaSelectParser.getCommandLineParameter().getParametersMap().containsKey("--fp")) {
-			ParamList ret = new ParamList();
+			final ParamList ret = new ParamList();
 			ret.getCvParam()
 					.add(DTASelect2MzIdUtil.getCVParam("MS:1001447", "prot:FDR threshold",
 							dtaSelectParser.getCommandLineParameter().getParameterValue("--fp"),
@@ -1556,7 +1556,7 @@ public class DTASelect2MzId {
 	private ProteinDetectionList getProteinDetectionList() throws IOException {
 		if (pdl == null) {
 			pdl = new ProteinDetectionList();
-			AnalysisSoftware searchEngine = getSearchEngine();
+			final AnalysisSoftware searchEngine = getSearchEngine();
 			String suffix = "";
 			if (searchEngine != null) {
 				suffix = "_" + searchEngine.getId();
@@ -1564,7 +1564,7 @@ public class DTASelect2MzId {
 			pdl.setId("PDL" + suffix);
 			final List<ProteinGroup> proteinGroups = getGroups();
 			int numPAG = 0;
-			for (ProteinGroup proteinGroup : proteinGroups) {
+			for (final ProteinGroup proteinGroup : proteinGroups) {
 				pdl.getProteinAmbiguityGroup().add(getProteinAmbiguityGroup(proteinGroup));
 				numPAG++;
 			}
@@ -1578,19 +1578,19 @@ public class DTASelect2MzId {
 	}
 
 	private SequenceCollection getSequenceCollection() throws IOException {
-		SequenceCollection ret = new SequenceCollection();
+		final SequenceCollection ret = new SequenceCollection();
 		final Map<String, Set<Protein>> proteinMap = dtaSelectParser.getProteins();
 		if (proteinMap != null) {
-			for (Set<Protein> proteinSet : proteinMap.values()) {
-				for (Protein protein : proteinSet) {
+			for (final Set<Protein> proteinSet : proteinMap.values()) {
+				for (final Protein protein : proteinSet) {
 					final DBSequence dbSequence = getDBSequence(protein);
 					// check if already there
 					if (!ret.getDBSequence().contains(dbSequence)) {
 						ret.getDBSequence().add(dbSequence);
 					}
 					final Set<PSM> psMs = protein.getPSMs();
-					for (PSM dtaSelectPSM : psMs) {
-						PeptideEvidence peptideEvidence = getPeptideEvidence(dtaSelectPSM, protein, ret);
+					for (final PSM dtaSelectPSM : psMs) {
+						final PeptideEvidence peptideEvidence = getPeptideEvidence(dtaSelectPSM, protein, ret);
 						if (!ret.getPeptideEvidence().contains(peptideEvidence)) {
 							ret.getPeptideEvidence().add(peptideEvidence);
 						}
@@ -1609,11 +1609,11 @@ public class DTASelect2MzId {
 
 	private PeptideEvidence getPeptideEvidence(PSM dtaSelectPSM, Protein protein, SequenceCollection sequenceCollection)
 			throws IOException {
-		String key = getPeptideEvidenceKey(dtaSelectPSM, protein);
+		final String key = getPeptideEvidenceKey(dtaSelectPSM, protein);
 		if (peptideEvidencesByKey.containsKey(key)) {
 			return peptideEvidencesByKey.get(key);
 		}
-		PeptideEvidence peptideEvidence = new PeptideEvidence();
+		final PeptideEvidence peptideEvidence = new PeptideEvidence();
 		peptideEvidencesByKey.put(key, peptideEvidence);
 		if (sequenceCollection != null) {
 			sequenceCollection.getPeptideEvidence().add(peptideEvidence);
@@ -1621,7 +1621,7 @@ public class DTASelect2MzId {
 
 		final DBSequence dbSequence = getDBSequence(protein);
 		peptideEvidence.setDBSequence(dbSequence);
-		Peptide peptide = getPeptide(dtaSelectPSM, sequenceCollection);
+		final Peptide peptide = getPeptide(dtaSelectPSM, sequenceCollection);
 		peptideEvidence.setId(key);
 		peptideEvidence.setPeptide(peptide);
 		peptideEvidence.setPre(String.valueOf(dtaSelectPSM.getBeforeSeq()));
@@ -1662,17 +1662,17 @@ public class DTASelect2MzId {
 		peptide.setPeptideSequence(dtaSelectPSM.getSequence());
 		// diff modifications
 		if (dtaSelectPSM.getPTMs() != null && !dtaSelectPSM.getPTMs().isEmpty()) {
-			for (PTM modification : dtaSelectPSM.getPTMs()) {
-				for (PTMSite site : modification.getPTMSites()) {
+			for (final PTM modification : dtaSelectPSM.getPTMs()) {
+				for (final PTMSite site : modification.getPTMSites()) {
 					peptide.getModification().add(getModification(modification, site));
 				}
 			}
 		}
 		// fix modifications. They are treated as different masses in the AA
 		// in the search of PROLucid
-		List<Modification> fixedModifications = getFixedModifications(dtaSelectPSM);
+		final List<Modification> fixedModifications = getFixedModifications(dtaSelectPSM);
 		peptide.getModification().addAll(fixedModifications);
-		String peptideID = getPeptideKey(peptide);
+		final String peptideID = getPeptideKey(peptide);
 		peptide.setId(peptideID);
 
 		if (!peptides.containsKey(peptideID)) {
@@ -1687,20 +1687,20 @@ public class DTASelect2MzId {
 	}
 
 	private String getPeptideKey(Peptide peptide) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final String peptideSequence = peptide.getPeptideSequence();
 		final List<Modification> modifications = peptide.getModification();
 		Collections.sort(modifications, new Comparator<Modification>() {
 
 			@Override
 			public int compare(Modification o1, Modification o2) {
-				int location1 = o1.getLocation() != null ? o1.getLocation() : -1;
-				int location2 = o2.getLocation() != null ? o2.getLocation() : -1;
+				final int location1 = o1.getLocation() != null ? o1.getLocation() : -1;
+				final int location2 = o2.getLocation() != null ? o2.getLocation() : -1;
 				return Integer.compare(location1, location2);
 			}
 		});
 		// n term is location=0
-		for (Modification modification : modifications) {
+		for (final Modification modification : modifications) {
 			if (modification.getLocation() != null && modification.getLocation() == 0) {
 				sb.append("(" + myFormatter4digits.format(modification.getMonoisotopicMassDelta()) + ")");
 			}
@@ -1708,14 +1708,14 @@ public class DTASelect2MzId {
 		for (int index = 0; index < peptideSequence.length(); index++) {
 			final int position = index + 1;
 			sb.append(peptideSequence.charAt(index));
-			for (Modification modification : modifications) {
+			for (final Modification modification : modifications) {
 				if (modification.getLocation() != null && modification.getLocation() == position) {
 					sb.append("(" + myFormatter4digits.format(modification.getMonoisotopicMassDelta()) + ")");
 				}
 			}
 		}
 		// c term is location=peptide length+1
-		for (Modification modification : modifications) {
+		for (final Modification modification : modifications) {
 			if (modification.getLocation() != null && modification.getLocation() == peptideSequence.length() + 1) {
 				sb.append("(" + myFormatter4digits.format(modification.getMonoisotopicMassDelta()) + ")");
 			}
@@ -1724,7 +1724,7 @@ public class DTASelect2MzId {
 	}
 
 	private List<PTM> getSortedByName(Collection<PTM> ptms) {
-		List<PTM> list = new ArrayList<PTM>();
+		final List<PTM> list = new ArrayList<PTM>();
 		list.addAll(ptms);
 		Collections.sort(list, new Comparator<PTM>() {
 
@@ -1737,9 +1737,9 @@ public class DTASelect2MzId {
 	}
 
 	private List<Modification> getFixedModifications(PSM dtaSelectPSM) throws IOException {
-		List<Modification> ret = new ArrayList<Modification>();
+		final List<Modification> ret = new ArrayList<Modification>();
 		if (dtaSelectPSM != null) {
-			LabeledSearchType lst = getLabeledSearchTypeByFileName(dtaSelectPSM.getMSRun().getRunId());
+			final LabeledSearchType lst = getLabeledSearchTypeByFileName(dtaSelectPSM.getMSRun().getRunId());
 			final SearchXmlFile searchParameters = SearchParametersManager.getInstance().getSearchParameters(lst);
 			if (searchParameters != null) {
 
@@ -1766,10 +1766,10 @@ public class DTASelect2MzId {
 					final String sequence = dtaSelectPSM.getSequence();
 					for (int index = 0; index < sequence.length(); index++) {
 						final char aa = sequence.charAt(index);
-						for (String diffAndResidue : searchParameters.getStaticmods()) {
+						for (final String diffAndResidue : searchParameters.getStaticmods()) {
 
-							double massDiff = Double.valueOf(diffAndResidue.split(" ")[0]);
-							String residues = diffAndResidue.split(" ")[1];
+							final double massDiff = Double.valueOf(diffAndResidue.split(" ")[0]);
+							final String residues = diffAndResidue.split(" ")[1];
 							for (int index2 = 0; index2 < residues.length(); index2++) {
 								final char aa2 = residues.charAt(index2);
 								if (aa == aa2) {
@@ -1790,19 +1790,20 @@ public class DTASelect2MzId {
 		if (modification == null || site == null) {
 			return null;
 		}
-		PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(modification, site);
-		Modification ret = new Modification();
+		final PeptideModificationUtil peptideModUtil = new PeptideModificationUtil(modification, site);
+		final Modification ret = new Modification();
 		ret.setLocation(peptideModUtil.getPosition());
 		ret.setMonoisotopicMassDelta(peptideModUtil.getMonoDelta());
+		ret.setAvgMassDelta(peptideModUtil.getAvgDelta());
 		ret.getResidues().add(peptideModUtil.getResidues());
 		if (peptideModUtil.getAccession() != null) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam(peptideModUtil.getAccession(), peptideModUtil.getName(),
 					null, DTASelect2MzIdUtil.getPsimodCv()).getCvParam());
 		} else {
-			ret.getCvParam()
-					.add(DTASelect2MzIdUtil
-							.getCVParam("MS:1001460", "Unknown modification", null, DTASelect2MzIdUtil.getPSIMsCv())
-							.getCvParam());
+
+			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1001460", "unknown modification",
+					peptideModUtil.getName(), DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+
 		}
 
 		return ret;
@@ -1814,7 +1815,7 @@ public class DTASelect2MzId {
 		if (dbSequences.containsKey(dtaSelectProtein.getAccession())) {
 			return dbSequences.get(dtaSelectProtein.getAccession());
 		}
-		DBSequence dbSequence = new DBSequence();
+		final DBSequence dbSequence = new DBSequence();
 		dbSequences.put(dtaSelectProtein.getAccession(), dbSequence);
 		final Pair<String, String> acc = FastaParser.getACC(dtaSelectProtein.getAccession());
 		dbSequence.setAccession(acc.getFirstelement());
@@ -1835,7 +1836,7 @@ public class DTASelect2MzId {
 	private SearchDatabase getFastaDBSequence() throws IOException {
 		if (searchDatabase == null) {
 			searchDatabase = new SearchDatabase();
-			String fastaPath = dtaSelectParser.getFastaPath();
+			final String fastaPath = dtaSelectParser.getFastaPath();
 			searchDatabase.setId("FASTA");
 			searchDatabase.setName(FilenameUtils.getBaseName(fastaPath));
 			searchDatabase.setLocation(fastaPath);
@@ -1884,14 +1885,14 @@ public class DTASelect2MzId {
 	}
 
 	private FileFormat getFastaFormat() {
-		FileFormat ret = new FileFormat();
+		final FileFormat ret = new FileFormat();
 		ret.setCvParam(DTASelect2MzIdUtil
 				.getCVParam("MS:1001348", "FASTA format", null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 		return ret;
 	}
 
 	private AnalysisSampleCollection getAnalysisSampleCollection(boolean createSampleIfNoExists) {
-		AnalysisSampleCollection ret = new AnalysisSampleCollection();
+		final AnalysisSampleCollection ret = new AnalysisSampleCollection();
 		final Sample sample2 = getSample(createSampleIfNoExists);
 		if (sample2 == null) {
 			return null;
@@ -1901,21 +1902,21 @@ public class DTASelect2MzId {
 	}
 
 	private AuditCollection getAuditCollection() {
-		AuditCollection ret = new AuditCollection();
+		final AuditCollection ret = new AuditCollection();
 		ret.getOrganization().add(getYatesLabContact());
 		ret.getPersonOrOrganization().add(getScrippsOrganization().getOrganization());
 		return ret;
 	}
 
 	private Provider getDefaultProvider() {
-		Provider ret = new Provider();
+		final Provider ret = new Provider();
 		ret.setContactRole(getYatesLabContactRole(DTASelect2MzIdUtil.getResearcherRole()));
 		ret.setId("PROVID");
 		return ret;
 	}
 
 	private AnalysisSoftwareList getAnalysisSoftwareList() throws IOException {
-		AnalysisSoftwareList ret = new AnalysisSoftwareList();
+		final AnalysisSoftwareList ret = new AnalysisSoftwareList();
 
 		ret.getAnalysisSoftware().add(getSearchEngine());
 		ret.getAnalysisSoftware().add(getDTASelectSoftware());
@@ -1923,7 +1924,7 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisSoftware getDTASelectSoftware() throws IOException {
-		AnalysisSoftware ret = new AnalysisSoftware();
+		final AnalysisSoftware ret = new AnalysisSoftware();
 		ret.setId("DTASelect");
 		ret.setName("DTASelect analysis software");
 		ret.setVersion(dtaSelectParser.getDTASelectVersion());
@@ -1950,7 +1951,7 @@ public class DTASelect2MzId {
 		if (isSequestSearch()) {
 			return getSequestAnalysisSoftware();
 		}
-		AnalysisSoftware searchEngineSofware = getOtherSearchEngineSoftware();
+		final AnalysisSoftware searchEngineSofware = getOtherSearchEngineSoftware();
 		if (searchEngineSofware != null) {
 			return searchEngineSofware;
 		}
@@ -1960,9 +1961,9 @@ public class DTASelect2MzId {
 	private AnalysisSoftware getOtherSearchEngineSoftware() throws IOException {
 		if (dtaSelectParser != null) {
 			final Set<String> searchEngines = dtaSelectParser.getSearchEngines();
-			for (String searchEngine : searchEngines) {
+			for (final String searchEngine : searchEngines) {
 				if (!searchEngine.equals(DTASelectParser.SEQUEST) && !searchEngine.equals(DTASelectParser.PROLUCID)) {
-					AnalysisSoftware ret = new AnalysisSoftware();
+					final AnalysisSoftware ret = new AnalysisSoftware();
 					ret.setId(searchEngine);
 					ret.setName(searchEngine);
 					ret.setVersion(dtaSelectParser.getSearchEngineVersion());
@@ -1977,7 +1978,7 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisSoftware getSequestAnalysisSoftware() throws IOException {
-		AnalysisSoftware ret = new AnalysisSoftware();
+		final AnalysisSoftware ret = new AnalysisSoftware();
 		ret.setId(DTASelectParser.SEQUEST);
 		ret.setName("SEQUEST search engine");
 		ret.setVersion(dtaSelectParser.getSearchEngineVersion());
@@ -1991,7 +1992,7 @@ public class DTASelect2MzId {
 	}
 
 	private AnalysisSoftware getProLuCIDAnalysisSoftware() throws IOException {
-		AnalysisSoftware ret = new AnalysisSoftware();
+		final AnalysisSoftware ret = new AnalysisSoftware();
 		ret.setId(DTASelectParser.PROLUCID);
 		ret.setName("ProLuCID search engine");
 		ret.setVersion(dtaSelectParser.getSearchEngineVersion());
@@ -2012,14 +2013,14 @@ public class DTASelect2MzId {
 	}
 
 	private ContactRole getYatesLabContactRole(Role role) {
-		ContactRole ret = new ContactRole();
+		final ContactRole ret = new ContactRole();
 		ret.setContact(getYatesLabContact());
 		ret.setRole(role);
 		return ret;
 	}
 
 	private Organization getYatesLabContact() {
-		Organization ret = new Organization();
+		final Organization ret = new Organization();
 		ret.setId(YATES_LAB_CONTACT_ID);
 		ret.setName("Yates lab");
 		// TODO add organization cv terms
@@ -2033,8 +2034,8 @@ public class DTASelect2MzId {
 	}
 
 	private ParentOrganization getScrippsOrganization() {
-		ParentOrganization ret = new ParentOrganization();
-		Organization scrippsOrg = new Organization();
+		final ParentOrganization ret = new ParentOrganization();
+		final Organization scrippsOrg = new Organization();
 		scrippsOrg.setId(SCRIPPS_ORG_ID);
 		scrippsOrg.setName("The Scripps Research Institute");
 		// scrippsOrg.getCvParam().add(DTASelect2MzIdUtil
@@ -2061,7 +2062,7 @@ public class DTASelect2MzId {
 	private boolean isSearchEngine(String searchEngineName) throws IOException {
 		if (dtaSelectParser != null) {
 			final Set<String> searchEngines = dtaSelectParser.getSearchEngines();
-			for (String searchEngine : searchEngines) {
+			for (final String searchEngine : searchEngines) {
 				if (searchEngine.equals(searchEngineName)) {
 					return true;
 				}
@@ -2082,9 +2083,9 @@ public class DTASelect2MzId {
 		MzIdentMLVersion version = MzIdentMLVersion.VERSION_1_1;
 		boolean skylineCompatible = true;
 		ReferenceToSpectra referenceToSpectra = ReferenceToSpectra.MS2;
-		CommandLineParser parser = new BasicParser();
+		final CommandLineParser parser = new BasicParser();
 		try {
-			CommandLine cmd = parser.parse(options, args);
+			final CommandLine cmd = parser.parse(options, args);
 			if (cmd.hasOption("i")) {
 				final String iOptionValue = cmd.getOptionValue("i");
 				inputFile = new File(iOptionValue);
@@ -2104,7 +2105,7 @@ public class DTASelect2MzId {
 				decoyRegexp = cmd.getOptionValue("d");
 				try {
 					Pattern.compile(decoyRegexp);
-				} catch (PatternSyntaxException e) {
+				} catch (final PatternSyntaxException e) {
 					errorInParameters("Decoy regular expression '" + decoyRegexp + "' is not well formed.");
 				}
 				log.info("DECOY regular expression provided: '" + decoyRegexp
@@ -2122,7 +2123,7 @@ public class DTASelect2MzId {
 				try {
 					referenceToSpectra = ReferenceToSpectra.valueOf(cmd.getOptionValue("rs"));
 
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					errorInParameters(
 							"Non valid value for 'rs' option. Valid values are: " + ReferenceToSpectra.getCSVString());
 				}
@@ -2158,7 +2159,7 @@ public class DTASelect2MzId {
 			}
 
 			if (cmd.hasOption("v")) {
-				String v = cmd.getOptionValue("v");
+				final String v = cmd.getOptionValue("v");
 				final MzIdentMLVersion versionByString = MzIdentMLVersion.getByString(v);
 				if (versionByString == null) {
 					errorInParameters("Version '" + v + "' is not supported. Versions supported are: "
@@ -2176,7 +2177,7 @@ public class DTASelect2MzId {
 				final String sky = cmd.getOptionValue("sky");
 				try {
 					skylineCompatible = Boolean.valueOf(sky);
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					errorInParameters("'" + sky + "' is not a valid boolean value");
 				}
 				log.info("Option 'sky' = '" + sky + "' detected. Compatibility with skyline is '" + skylineCompatible
@@ -2186,9 +2187,9 @@ public class DTASelect2MzId {
 						+ "'");
 			}
 
-			List<File> inputFiles = getInputFiles(inputFile, inputFileName, recursiveInputFileSearch);
+			final List<File> inputFiles = getInputFiles(inputFile, inputFileName, recursiveInputFileSearch);
 			if (uniqueOutput) {
-				DTASelect2MzId conversor = new DTASelect2MzId(inputFiles, new File(System.getProperty("user.dir")
+				final DTASelect2MzId conversor = new DTASelect2MzId(inputFiles, new File(System.getProperty("user.dir")
 						+ File.separator + FilenameUtils.getBaseName(inputFileName) + ".mzid"), version);
 				conversor.setDecoyRegexp(decoyRegexp);
 				conversor.setIgnoreSpectra(ignoreSpectra);
@@ -2196,12 +2197,12 @@ public class DTASelect2MzId {
 				conversor.setReferenceToSpectra(referenceToSpectra);
 				conversor.convert();
 			} else {
-				for (File file : inputFiles) {
+				for (final File file : inputFiles) {
 					inputFileName = FilenameUtils.getBaseName(file.getAbsolutePath());
 					final File outputMzIdentMLFile = new File(
 							file.getParentFile().getAbsolutePath() + File.separator + inputFileName + ".mzid");
 					log.info("Using file name: '" + inputFileName + "' for output file(s).");
-					DTASelect2MzId conversor = new DTASelect2MzId(file, outputMzIdentMLFile, version);
+					final DTASelect2MzId conversor = new DTASelect2MzId(file, outputMzIdentMLFile, version);
 					conversor.setDecoyRegexp(decoyRegexp);
 					conversor.setIgnoreSpectra(ignoreSpectra);
 					conversor.setSkylineCompatible(skylineCompatible);
@@ -2210,9 +2211,9 @@ public class DTASelect2MzId {
 					conversor.convert();
 				}
 			}
-		} catch (ParseException e) {
+		} catch (final ParseException e) {
 			errorInParameters(e.getMessage());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			System.err.println(e.getMessage());
 		}
@@ -2235,37 +2236,37 @@ public class DTASelect2MzId {
 	}
 
 	private static List<File> getInputFiles(File inputFile, String inputFileName, boolean recursiveInputFileSearch) {
-		List<File> ret = new ArrayList<File>();
+		final List<File> ret = new ArrayList<File>();
 		if (inputFile.isFile()) {
 			ret.add(inputFile);
 		} else {
 			if (!recursiveInputFileSearch) {
-				File file = new File(inputFile.getAbsolutePath() + File.separator + inputFileName);
+				final File file = new File(inputFile.getAbsolutePath() + File.separator + inputFileName);
 				ret.add(file);
 			} else {
-				List<File> files = findFiles(inputFile, inputFileName);
+				final List<File> files = findFiles(inputFile, inputFileName);
 				ret.addAll(files);
 			}
 		}
-		String plural = ret.size() > 1 ? "s" : "";
+		final String plural = ret.size() > 1 ? "s" : "";
 		log.info(ret.size() + " file" + plural + " found:");
 		int i = 1;
-		for (File file : ret) {
+		for (final File file : ret) {
 			log.info(i++ + "- " + file.getAbsolutePath());
 		}
 		return ret;
 	}
 
 	private static List<File> findFiles(File inputFolder, String inputFileName) {
-		List<File> ret = new ArrayList<File>();
+		final List<File> ret = new ArrayList<File>();
 		// look in current folder
-		File file = new File(inputFolder.getAbsolutePath() + File.separator + inputFileName);
+		final File file = new File(inputFolder.getAbsolutePath() + File.separator + inputFileName);
 		if (file.exists()) {
 			ret.add(file);
 		}
 		// look in subfolders
 		final File[] listFiles = inputFolder.listFiles();
-		for (File file2 : listFiles) {
+		for (final File file2 : listFiles) {
 			if (file2.isDirectory()) {
 				ret.addAll(findFiles(file2, inputFileName));
 			}
@@ -2279,7 +2280,7 @@ public class DTASelect2MzId {
 
 	private static void errorInParameters(String header) {
 		// automatically generate the help statement
-		HelpFormatter formatter = new HelpFormatter();
+		final HelpFormatter formatter = new HelpFormatter();
 		if (header == null) {
 			formatter.printHelp("DTASelect2MzId -i [input file or folder]", options);
 		} else {
