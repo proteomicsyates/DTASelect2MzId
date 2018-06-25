@@ -74,9 +74,9 @@ public class DTASelect2MzIdUtil {
 	}
 
 	private static Cv getCvByName(String cvRef) {
-		String cvId = getCVIdFromCVRef(cvRef);
+		final String cvId = getCVIdFromCVRef(cvRef);
 		final CvList cvList = getCVList();
-		for (Cv cv : cvList.getCv()) {
+		for (final Cv cv : cvList.getCv()) {
 			if (cv.getId().equals(cvId)) {
 				return cv;
 			}
@@ -92,16 +92,17 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static CvList getCVList() {
-		CvList ret = new CvList();
+		final CvList ret = new CvList();
 		ret.getCv().add(getPSIMsCv());
 		ret.getCv().add(getNEWTCv());
 		ret.getCv().add(getUoCv());
 		ret.getCv().add(getPsimodCv());
+		ret.getCv().add(getUnimodCv());
 		return ret;
 	}
 
 	public static Cv getUnimodCv() {
-		Cv ret = new Cv();
+		final Cv ret = new Cv();
 		ret.setId(UNIMODOntology.getCVLabel());
 		ret.setFullName(UNIMODOntology.getFullName());
 		ret.setUri(UNIMODOntology.getAddress());
@@ -110,7 +111,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Cv getPsimodCv() {
-		Cv ret = new Cv();
+		final Cv ret = new Cv();
 		ret.setId(PSIModOntology.getCVLabel());
 		ret.setFullName(PSIModOntology.getFullName());
 		ret.setUri(PSIModOntology.getAddress());
@@ -119,7 +120,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Cv getUoCv() {
-		Cv ret = new Cv();
+		final Cv ret = new Cv();
 		ret.setId(UnitOntology.getCVLabel());
 		ret.setFullName(UnitOntology.getFullName());
 		ret.setUri(UnitOntology.getAddress());
@@ -128,7 +129,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Cv getNEWTCv() {
-		Cv ret = new Cv();
+		final Cv ret = new Cv();
 		ret.setId(NEWTOntology.getCVLabel());
 		ret.setFullName(NEWTOntology.getFullName());
 		ret.setUri(NEWTOntology.getAddress());
@@ -137,7 +138,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Cv getPSIMsCv() {
-		Cv ret = new Cv();
+		final Cv ret = new Cv();
 		ret.setId(PSI_ONTOLOGY_ID);
 		ret.setFullName(PSIMassSpectrometryOntology.getFullName());
 		ret.setUri(PSIMassSpectrometryOntology.getAddress());
@@ -167,7 +168,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Role getResearcherRole() {
-		Role ret = new Role();
+		final Role ret = new Role();
 		final String RESEARCHER_CV = "MS:1001271";
 		final ControlVocabularyTerm cvTermByAcc = getCvTermByAcc(RESEARCHER_CV,
 				ContactPositionMS.getInstance(getOntologyManager()));
@@ -176,7 +177,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Role getSoftwareVendorRole(String value) {
-		Role ret = new Role();
+		final Role ret = new Role();
 		final String SOFT_VENDOR_CV = "MS:1001267";
 		final ControlVocabularyTerm cvTermByAcc = getCvTermByAcc(SOFT_VENDOR_CV,
 				ContactPositionMS.getInstance(getOntologyManager()));
@@ -198,7 +199,7 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static String createMzIdentMLStartTag(String id, String version) {
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 		// tag opening plus id attribute
 		sb.append("<MzIdentML id=\"").append(id).append("\"");
 		// further attributes
@@ -209,7 +210,7 @@ public class DTASelect2MzIdUtil {
 			sb.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 			sb.append(
 					" xsi:schemaLocation=\"http://psidev.info/psi/pi/mzIdentML/1.2 https://github.com/HUPO-PSI/mzIdentML/raw/master/schema/mzIdentML1.2.0-candidate.xsd\"");
-			DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			final DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			sb.append(" creationDate=\"").append(dfm.format(new Date())).append("\"");
 			// finally close the tag
 			sb.append(" >");
@@ -218,7 +219,7 @@ public class DTASelect2MzIdUtil {
 			sb.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 			sb.append(" xsi:schemaLocation=\"").append(ModelConstants.MZIDML_NS).append(" ")
 					.append(ModelConstants.MZIDML_SCHEMA).append("\"");
-			DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			final DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			sb.append(" creationDate=\"").append(dfm.format(new Date())).append("\"");
 			// finally close the tag
 			sb.append(" >");
@@ -227,8 +228,8 @@ public class DTASelect2MzIdUtil {
 	}
 
 	public static Set<PSM> getPsms(Collection<Protein> dtaSelectProteins) {
-		Set<PSM> psms = new HashSet<PSM>();
-		for (Protein protein : dtaSelectProteins) {
+		final Set<PSM> psms = new HashSet<PSM>();
+		for (final Protein protein : dtaSelectProteins) {
 			psms.addAll(protein.getPSMs());
 		}
 		return psms;
@@ -238,8 +239,9 @@ public class DTASelect2MzIdUtil {
 		double calculateMonoMass = 0.0;
 		for (int index = 0; index < sequence.length(); index++) {
 			final char aa = sequence.charAt(index);
-			calculateMonoMass += AssignMass.getInstance(true).getMass(aa);
-			for (SearchModification searchModification : modificationParams.getSearchModification()) {
+			AssignMass.getInstance(true);
+			calculateMonoMass += AssignMass.getMass(aa);
+			for (final SearchModification searchModification : modificationParams.getSearchModification()) {
 				if (searchModification.isFixedMod() && searchModification.getResidues().contains(aa)) {
 					calculateMonoMass += searchModification.getMassDelta();
 				}
