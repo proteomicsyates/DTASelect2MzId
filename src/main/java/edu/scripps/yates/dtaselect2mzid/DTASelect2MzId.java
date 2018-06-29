@@ -991,10 +991,12 @@ public class DTASelect2MzId {
 		if (nterm) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1001189", "modification specificity peptide N-term",
 					null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+
 		}
 		if (cterm) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1001190", "modification specificity peptide C-term",
 					null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+
 		}
 		return ret;
 	}
@@ -1747,7 +1749,7 @@ public class DTASelect2MzId {
 				if (searchParameters.getNTermStaticMod() != null) {
 					final double massDiff = Double.valueOf(searchParameters.getNTermStaticMod());
 					if (Double.compare(massDiff, 0.0) != 0) {
-						ret.add(getModification(null, null, massDiff, null, true, false));
+						ret.add(getModification(null, 1, massDiff, null, true, false));
 					}
 				}
 
@@ -1755,7 +1757,8 @@ public class DTASelect2MzId {
 				if (searchParameters.getCTermStaticMod() != null) {
 					final double massDiff = Double.valueOf(searchParameters.getCTermStaticMod());
 					if (Double.compare(massDiff, 0.0) != 0) {
-						ret.add(getModification(null, null, massDiff, null, false, true));
+						ret.add(getModification(null, dtaSelectPSM.getSequence().length() + 1, massDiff, null, false,
+								true));
 					}
 				}
 
