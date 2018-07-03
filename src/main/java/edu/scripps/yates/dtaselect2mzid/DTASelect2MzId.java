@@ -991,10 +991,12 @@ public class DTASelect2MzId {
 		if (nterm) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1001189", "modification specificity peptide N-term",
 					null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+
 		}
 		if (cterm) {
 			ret.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1001190", "modification specificity peptide C-term",
 					null, DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+
 		}
 		return ret;
 	}
