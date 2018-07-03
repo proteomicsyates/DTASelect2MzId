@@ -1747,7 +1747,7 @@ public class DTASelect2MzId {
 				if (searchParameters.getNTermStaticMod() != null) {
 					final double massDiff = Double.valueOf(searchParameters.getNTermStaticMod());
 					if (Double.compare(massDiff, 0.0) != 0) {
-						ret.add(getModification(null, null, massDiff, null, true, false));
+						ret.add(getModification(null, 0, massDiff, null, true, false));
 					}
 				}
 
@@ -1755,7 +1755,8 @@ public class DTASelect2MzId {
 				if (searchParameters.getCTermStaticMod() != null) {
 					final double massDiff = Double.valueOf(searchParameters.getCTermStaticMod());
 					if (Double.compare(massDiff, 0.0) != 0) {
-						ret.add(getModification(null, null, massDiff, null, false, true));
+						ret.add(getModification(null, dtaSelectPSM.getSequence().length(), massDiff, null, false,
+								true));
 					}
 				}
 
@@ -1773,7 +1774,11 @@ public class DTASelect2MzId {
 							for (int index2 = 0; index2 < residues.length(); index2++) {
 								final char aa2 = residues.charAt(index2);
 								if (aa == aa2) {
-									ret.add(getModification(residues, index + 1, massDiff, null, false, false));
+									boolean cTerminal = false;
+									if (index + 1 == sequence.length()) {
+										cTerminal = true;
+									}
+									ret.add(getModification(residues, index + 1, massDiff, null, false, cTerminal));
 								}
 							}
 
