@@ -1134,7 +1134,7 @@ public class DTASelect2MzId {
 			sir.getSpectrumIdentificationItem().add(getSpectrumIdentificationItem(dtaSelectPSM));
 			// spectrum title
 			sir.getCvParam().add(DTASelect2MzIdUtil.getCVParam("MS:1000796", "spectrum title",
-					dtaSelectPSM.getPSMIdentifier(), DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
+					dtaSelectPSM.getIdentifier(), DTASelect2MzIdUtil.getPSIMsCv()).getCvParam());
 			return sir;
 		}
 	}
@@ -1187,7 +1187,7 @@ public class DTASelect2MzId {
 				return spectrumID;
 			}
 		}
-		return dtaSelectPSM.getPSMIdentifier();
+		return dtaSelectPSM.getIdentifier();
 	}
 
 	public LabeledSearchType getLabeledSearchTypeByFileName(String fileName) {
