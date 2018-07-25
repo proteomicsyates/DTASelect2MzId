@@ -28,11 +28,11 @@ public class PeptideModificationUtil {
 	private static final String MOD0 = "MOD:00000";
 	private static Set<String> errorMessages = new HashSet<String>();
 
-	public PeptideModificationUtil(PTM dtaSelectModification, PTMSite ptmSite) {
+	public PeptideModificationUtil(PTM modificaton, PTMSite ptmSite) {
 
 		modReader = ModReader.getInstance();
 
-		ptm = dtaSelectModification;
+		ptm = modificaton;
 		this.ptmSite = ptmSite;
 		if (preferredModifications == null) {
 			final URL url = getClass().getClassLoader().getResource("modification_mappings_dtaSelect.xml");
@@ -42,7 +42,7 @@ public class PeptideModificationUtil {
 				throw new IllegalArgumentException("Could not find preferred modification file");
 			}
 		}
-		final double delta = dtaSelectModification.getMassShift();
+		final double delta = modificaton.getMassShift();
 		final double precision = 0.01;
 		// try with modreader
 		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = getPTMs(delta, residues);
