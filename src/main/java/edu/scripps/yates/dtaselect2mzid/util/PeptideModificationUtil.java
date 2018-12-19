@@ -1,6 +1,5 @@
 package edu.scripps.yates.dtaselect2mzid.util;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,21 +10,16 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.pridemod.model.Specificity;
 import uk.ac.ebi.pride.utilities.pridemod.model.Specificity.AminoAcid;
-import uk.ac.ebi.pridemod.PrideModController;
-import uk.ac.ebi.pridemod.slimmod.model.SlimModCollection;
-import uk.ac.ebi.pridemod.slimmod.model.SlimModification;
 
 public class PeptideModificationUtil {
 	private final PTM ptm;
 	private final PTMSite ptmSite;
-	private final SlimModification slimModification;
 	private Double delta;
 	private String residues;
 	private final ModReader modReader;
 	private uk.ac.ebi.pride.utilities.pridemod.model.PTM recognizedPTM;
-	private static SlimModCollection preferredModifications;
 	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PeptideModificationUtil.class);
-	private static final String MOD0 = "MOD:00000";
+	private static final double PRECISION = 0.001;
 	private static Set<String> errorMessages = new HashSet<String>();
 
 	public PeptideModificationUtil(PTM modificaton, PTMSite ptmSite) {
@@ -34,35 +28,18 @@ public class PeptideModificationUtil {
 
 		ptm = modificaton;
 		this.ptmSite = ptmSite;
-		if (preferredModifications == null) {
-			final URL url = getClass().getClassLoader().getResource("modification_mappings_dtaSelect.xml");
-			if (url != null) {
-				preferredModifications = PrideModController.parseSlimModCollection(url);
-			} else {
-				throw new IllegalArgumentException("Could not find preferred modification file");
-			}
-		}
 		final double delta = modificaton.getMassShift();
-		final double precision = 0.01;
 		// try with modreader
-		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = getPTMs(delta, residues);
+		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = getPTMs(delta, ptm.getResidues());
 		if (!ptms.isEmpty()) {
 			recognizedPTM = ptms.get(0);
 			residues = getResiduesString(recognizedPTM.getSpecificityCollection());
-			slimModification = null;
 		} else {
-			// map by delta
-			final SlimModCollection filteredMods = preferredModifications.getbyDelta(delta, precision);
-			if (!filteredMods.isEmpty()) {
-				slimModification = filteredMods.get(0);
-			} else {
-				final String message = "Peptide modification with delta mass=" + delta
-						+ " is not recognized in the system. Please, contact system administrator in order to add it as a supported PTM in the system.";
-				if (!errorMessages.contains(message)) {
-					log.warn(message);
-					errorMessages.add(message);
-				}
-				slimModification = null;
+			final String message = "Peptide modification with delta mass=" + delta
+					+ " is not recognized in the system. Please, contact system administrator in order to add it as a supported PTM in the system.";
+			if (!errorMessages.contains(message)) {
+				log.warn(message);
+				errorMessages.add(message);
 			}
 		}
 	}
@@ -71,14 +48,6 @@ public class PeptideModificationUtil {
 		modReader = ModReader.getInstance();
 		ptm = null;
 		ptmSite = null;
-		if (preferredModifications == null) {
-			final URL url = getClass().getClassLoader().getResource("modification_mappings_dtaSelect.xml");
-			if (url != null) {
-				preferredModifications = PrideModController.parseSlimModCollection(url);
-			} else {
-				throw new IllegalArgumentException("Could not find preferred modification file");
-			}
-		}
 		this.residues = residues;
 		delta = massShift;
 
@@ -88,23 +57,15 @@ public class PeptideModificationUtil {
 			recognizedPTM = ptms.get(0);
 			delta = recognizedPTM.getMonoDeltaMass();
 			this.residues = getResiduesString(recognizedPTM.getSpecificityCollection());
-			slimModification = null;
 		} else {
 
-			final double precision = 0.03;
-			// map by delta
-			final SlimModCollection filteredMods = preferredModifications.getbyDelta(delta, precision);
-			if (!filteredMods.isEmpty()) {
-				slimModification = filteredMods.get(0);
-			} else {
-				final String message = "Peptide modification with delta mass=" + delta
-						+ " is not recognized in the system. Please, contact system administrator in order to add it as a supported PTM in the system.";
-				if (!errorMessages.contains(message)) {
-					log.warn(message);
-					errorMessages.add(message);
-				}
-				slimModification = null;
+			final String message = "Peptide modification with delta mass=" + delta
+					+ " is not recognized in the system. Please, contact system administrator in order to add it as a supported PTM in the system.";
+			if (!errorMessages.contains(message)) {
+				log.warn(message);
+				errorMessages.add(message);
 			}
+
 		}
 	}
 
@@ -120,7 +81,8 @@ public class PeptideModificationUtil {
 	}
 
 	private List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> getPTMs(double massShift, String residues2) {
-		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift);
+		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift,
+				PRECISION);
 		if (residues2 == null || "".equals(residues2)) {
 			return ptms;
 		}
@@ -130,7 +92,7 @@ public class PeptideModificationUtil {
 			if (specificityCollection != null) {
 				for (final Specificity specificity : specificityCollection) {
 					final String aa = specificity.getName().toString();
-					if (residues2.equals(aa)) {
+					if (residues2.contains(aa)) {
 						ret.add(ptm);
 					}
 				}
@@ -153,8 +115,6 @@ public class PeptideModificationUtil {
 	}
 
 	public String getName() {
-		if (slimModification != null)
-			return slimModification.getShortNamePsiMod();
 		if (recognizedPTM != null) {
 			return recognizedPTM.getName();
 		}
@@ -162,13 +122,6 @@ public class PeptideModificationUtil {
 	}
 
 	public String getAccession() {
-		if (slimModification != null) {
-			final String idPsiMod = slimModification.getIdPsiMod();
-			if (MOD0.equals(idPsiMod)) {
-				return null;
-			}
-			return idPsiMod;
-		}
 		if (recognizedPTM != null) {
 			return recognizedPTM.getAccession();
 		}

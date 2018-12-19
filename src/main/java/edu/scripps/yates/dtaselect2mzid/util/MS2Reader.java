@@ -50,14 +50,14 @@ public class MS2Reader {
 					if (line.startsWith("S")) {
 						numScan++;
 						final String[] split = line.split("\\s");
-						String scan1 = split[1];
+						final String scan1 = split[1];
 						scan1Num = Integer.valueOf(scan1);
-						String scan2 = split[2];
+						final String scan2 = split[2];
 						scan2Num = Integer.valueOf(scan2);
 						charge = -1;
 					} else if (line.startsWith("Z")) {
 						charge = Integer.valueOf(line.split("\\s")[1]);
-						String key = scan1Num + "." + scan2Num + "." + charge;
+						final String key = scan1Num + "." + scan2Num + "." + charge;
 						spectrumIndexByScanNumberMap.put(key, numScan);
 						if (rt != null) {
 							rtByScanNumberMap.put(key, rt);
@@ -68,7 +68,7 @@ public class MS2Reader {
 							try {
 								rt = Double.valueOf(split[2]);
 
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 								log.warn(e);
 								rt = null;
 							}
@@ -77,15 +77,15 @@ public class MS2Reader {
 				}
 				log.info(spectrumIndexByScanNumberMap.size() + " spectra readed in MS2 file. "
 						+ ms2File.getAbsolutePath());
-			} catch (FileNotFoundException e) {
+			} catch (final FileNotFoundException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			} finally {
 				if (br != null) {
 					try {
 						br.close();
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						e.printStackTrace();
 					}
 				}
@@ -111,4 +111,19 @@ public class MS2Reader {
 	public String getFileName() {
 		return FilenameUtils.getBaseName(ms2File.getAbsolutePath());
 	}
+
+	public Map<String, Integer> getSpectrumIndexByScanNumberMap() {
+		if (spectrumIndexByScanNumberMap == null) {
+			process();
+		}
+		return spectrumIndexByScanNumberMap;
+	}
+
+	public Map<String, Double> getRtByScanNumberMap() {
+		if (rtByScanNumberMap == null) {
+			process();
+		}
+		return rtByScanNumberMap;
+	}
+
 }

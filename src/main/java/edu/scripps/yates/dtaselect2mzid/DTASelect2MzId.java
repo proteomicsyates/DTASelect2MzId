@@ -40,8 +40,6 @@ import org.proteored.miapeapi.cv.ms.SoftwareName;
 import org.proteored.miapeapi.cv.msi.Score;
 import org.proteored.miapeapi.cv.msi.SearchType;
 
-import edu.scripps.yates.dtaselect.ProteinDTASelectParser;
-import edu.scripps.yates.dtaselect.ProteinImplFromDTASelect;
 import edu.scripps.yates.dtaselect2mzid.util.DTASelect2MzIdUtil;
 import edu.scripps.yates.dtaselect2mzid.util.LabeledSearchType;
 import edu.scripps.yates.dtaselect2mzid.util.MS2Reader;
@@ -58,12 +56,12 @@ import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.masses.MassesUtil;
-import edu.scripps.yates.utilities.model.factories.ProteinEx;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
-import edu.scripps.yates.utilities.util.Pair;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinEx;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSampleCollection;
@@ -152,7 +150,7 @@ public class DTASelect2MzId {
 	private static Options options;
 	private final List<File> dtaSelectFiles = new ArrayList<File>();
 	private final File output;
-	private ProteinDTASelectParser dtaSelectParser;
+	private DTASelectParser dtaSelectParser;
 	private final AssignMass assignMass = AssignMass.getInstance(true);
 	private SearchDatabase searchDatabase;
 
@@ -249,7 +247,7 @@ public class DTASelect2MzId {
 	public void convert() throws IOException {
 		SearchParametersManager.setInputFolder(getInputFolder());
 
-		dtaSelectParser = new ProteinDTASelectParser(dtaSelectFiles);
+		dtaSelectParser = new DTASelectParser(dtaSelectFiles);
 		dtaSelectParser.setDecoyPattern(decoyPatternString);
 
 		if (!ignoreSpectra && referenceToSpectra == ReferenceToSpectra.MS2) {
@@ -499,15 +497,15 @@ public class DTASelect2MzId {
 		return dtaSelectFiles2.get(0).getParentFile().getAbsolutePath();
 	}
 
-	private List<ProteinGroup> getGroups() {
+	private List<ProteinGroup> getGroups() throws IOException {
 		if (groups == null) {
 			log.info("Grouping  " + dtaSelectParser.getProteins().size()
 					+ " proteins according to PAnalyzer algorithm...");
 			groups = new ArrayList<ProteinGroup>();
 			final Set<GroupableProtein> groupableProteins = new HashSet<GroupableProtein>();
-			for (final Set<Protein> proteinSet : dtaSelectParser.getProteins().values()) {
+			for (final Protein protein : dtaSelectParser.getProteins()) {
 
-				groupableProteins.addAll(proteinSet);
+				groupableProteins.add(protein);
 			}
 			final PAnalyzer panalyzer = new PAnalyzer(true);
 			groups = panalyzer.run(groupableProteins);
@@ -648,21 +646,20 @@ public class DTASelect2MzId {
 		// psiMsCv).getCvParam());
 		// }
 
-		if (protein1 instanceof ProteinImplFromDTASelect) {
-			final ProteinImplFromDTASelect proteinTmp = (ProteinImplFromDTASelect) protein1;
-			// protein coverage
-			pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(PROTEIN_COVERAGE_CV, "sequence coverage",
-					myFormatter.format(proteinTmp.getCoverage()), psiMsCv).getCvParam());
-			// empai value
-			if (proteinTmp.getEMPai() != null) {
-				pdh.getCvParam().add(DTASelect2MzIdUtil
-						.getCVParam(EMPAI_VALUE_CV, "emPAI value", myFormatter.format(proteinTmp.getEMPai()), psiMsCv)
-						.getCvParam());
-			}
-			// NSAF
-			pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(NSAF_CV, "normalized spectral abundance factor",
-					myFormatter.format(proteinTmp.getNSAFNorm()), psiMsCv).getCvParam());
+		// protein coverage
+		pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(PROTEIN_COVERAGE_CV, "sequence coverage",
+				myFormatter.format(protein1.getCoverage()), psiMsCv).getCvParam());
+		// empai value
+		if (protein1.getEmpai() != null) {
+			pdh.getCvParam()
+					.add(DTASelect2MzIdUtil
+							.getCVParam(EMPAI_VALUE_CV, "emPAI value", myFormatter.format(protein1.getEmpai()), psiMsCv)
+							.getCvParam());
 		}
+		// NSAF
+		pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(NSAF_CV, "normalized spectral abundance factor",
+				myFormatter.format(protein1.getNsaf_norm()), psiMsCv).getCvParam());
+
 		// distinct peptide sequences
 		final Set<PSM> psms = DTASelect2MzIdUtil.getPsms(dtaSelectProteins);
 		final Set<String> sequences = new HashSet<String>();
@@ -673,7 +670,7 @@ public class DTASelect2MzId {
 		pdh.getCvParam().add(DTASelect2MzIdUtil.getCVParam(DISTINCT_PEP_SEQUENCSE, "distinct peptide sequences",
 				String.valueOf(distinctPeptideSequences), psiMsCv).getCvParam());
 		for (final Protein protein : dtaSelectProteins) {
-			final Set<PSM> psMs = protein.getPSMs();
+			final List<PSM> psMs = protein.getPSMs();
 			for (final PSM dtaSelectPSM : psMs) {
 				final PeptideHypothesis peptideHypothesis = getPeptideHypothesis(protein, dtaSelectPSM);
 				if (!pdh.getPeptideHypothesis().contains(peptideHypothesis)) {
@@ -1263,8 +1260,8 @@ public class DTASelect2MzId {
 			} catch (final NumberFormatException e) {
 
 			}
-			if (dtaSelectPSM.getPI() != null) {
-				ret.setCalculatedPI(dtaSelectPSM.getPI().floatValue());
+			if (dtaSelectPSM.getPi() != null) {
+				ret.setCalculatedPI(dtaSelectPSM.getPi().floatValue());
 			}
 
 			ret.setPassThreshold(true);
@@ -1581,28 +1578,26 @@ public class DTASelect2MzId {
 
 	private SequenceCollection getSequenceCollection() throws IOException {
 		final SequenceCollection ret = new SequenceCollection();
-		final Map<String, Set<Protein>> proteinMap = dtaSelectParser.getProteins();
+		final Map<String, Protein> proteinMap = dtaSelectParser.getProteinMap();
 		if (proteinMap != null) {
-			for (final Set<Protein> proteinSet : proteinMap.values()) {
-				for (final Protein protein : proteinSet) {
-					final DBSequence dbSequence = getDBSequence(protein);
-					// check if already there
-					if (!ret.getDBSequence().contains(dbSequence)) {
-						ret.getDBSequence().add(dbSequence);
-					}
-					final Set<PSM> psMs = protein.getPSMs();
-					for (final PSM dtaSelectPSM : psMs) {
-						final PeptideEvidence peptideEvidence = getPeptideEvidence(dtaSelectPSM, protein, ret);
-						if (!ret.getPeptideEvidence().contains(peptideEvidence)) {
-							ret.getPeptideEvidence().add(peptideEvidence);
-						}
-						final Peptide peptide = getPeptide(dtaSelectPSM, ret);
-						if (!ret.getPeptide().contains(peptide)) {
-							ret.getPeptide().add(peptide);
-						}
-					}
-
+			for (final Protein protein : proteinMap.values()) {
+				final DBSequence dbSequence = getDBSequence(protein);
+				// check if already there
+				if (!ret.getDBSequence().contains(dbSequence)) {
+					ret.getDBSequence().add(dbSequence);
 				}
+				final List<PSM> psMs = protein.getPSMs();
+				for (final PSM dtaSelectPSM : psMs) {
+					final PeptideEvidence peptideEvidence = getPeptideEvidence(dtaSelectPSM, protein, ret);
+					if (!ret.getPeptideEvidence().contains(peptideEvidence)) {
+						ret.getPeptideEvidence().add(peptideEvidence);
+					}
+					final Peptide peptide = getPeptide(dtaSelectPSM, ret);
+					if (!ret.getPeptide().contains(peptide)) {
+						ret.getPeptide().add(peptide);
+					}
+				}
+
 			}
 
 		}
@@ -1824,9 +1819,9 @@ public class DTASelect2MzId {
 		}
 		final DBSequence dbSequence = new DBSequence();
 		dbSequences.put(dtaSelectProtein.getAccession(), dbSequence);
-		final Pair<String, String> acc = FastaParser.getACC(dtaSelectProtein.getAccession());
-		dbSequence.setAccession(acc.getFirstelement());
-		dbSequence.setId(getDBSequenceID(acc.getFirstelement()));
+		final Accession acc = FastaParser.getACC(dtaSelectProtein.getAccession());
+		dbSequence.setAccession(acc.getAccession());
+		dbSequence.setId(getDBSequenceID(acc.getAccession()));
 		dbSequence.setSearchDatabase(getFastaDBSequence());
 		final String description = FastaParser.getDescription(dtaSelectProtein.getPrimaryAccession().getDescription());
 		dbSequence.setName(description);
@@ -1934,7 +1929,7 @@ public class DTASelect2MzId {
 		final AnalysisSoftware ret = new AnalysisSoftware();
 		ret.setId("DTASelect");
 		ret.setName("DTASelect analysis software");
-		ret.setVersion(dtaSelectParser.getDTASelectVersion());
+		ret.setVersion(dtaSelectParser.getSoftwareVersion());
 		ret.setUri("http://fields.scripps.edu/DTASelect/");
 		ret.setContactRole(
 				getYatesLabContactRole(DTASelect2MzIdUtil.getSoftwareVendorRole("Yates lab software developers")));
