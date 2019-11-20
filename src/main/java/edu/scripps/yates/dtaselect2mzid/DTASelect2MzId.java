@@ -42,7 +42,6 @@ import org.proteored.miapeapi.cv.msi.SearchType;
 
 import edu.scripps.yates.dtaselect2mzid.util.DTASelect2MzIdUtil;
 import edu.scripps.yates.dtaselect2mzid.util.LabeledSearchType;
-import edu.scripps.yates.dtaselect2mzid.util.MS2Reader;
 import edu.scripps.yates.dtaselect2mzid.util.MzIdentMLVersion;
 import edu.scripps.yates.dtaselect2mzid.util.PeptideModificationUtil;
 import edu.scripps.yates.dtaselect2mzid.util.ReferenceToSpectra;
@@ -62,6 +61,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinEx;
+import edu.scripps.yates.utilities.proteomicsmodel.ms2.MS2Reader;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSampleCollection;
