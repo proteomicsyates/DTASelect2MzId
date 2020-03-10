@@ -62,6 +62,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.ms2.MS2Reader;
+import gnu.trove.list.TIntList;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSampleCollection;
@@ -574,9 +575,8 @@ public class DTASelect2MzId {
 
 	/**
 	 *
-	 * @param dtaSelectProteins
-	 *            can be more than one because can be the same protein from
-	 *            different msRuns
+	 * @param dtaSelectProteins can be more than one because can be the same protein
+	 *                          from different msRuns
 	 * @return
 	 * @throws IOException
 	 */
@@ -952,10 +952,8 @@ public class DTASelect2MzId {
 
 	/**
 	 *
-	 * @param residues
-	 *            null for N-term and C-term modifications
-	 * @param location
-	 *            0 for N-term mod. 1 for 1st AA, etc...
+	 * @param residues      null for N-term and C-term modifications
+	 * @param location      0 for N-term mod. 1 for 1st AA, etc...
 	 * @param monoMassDelta
 	 * @param avgMassDelta
 	 * @param fixed
@@ -1156,9 +1154,9 @@ public class DTASelect2MzId {
 				final String key = Integer.valueOf(dtaSelectPSM.getScanNumber()) + "."
 						+ Integer.valueOf(dtaSelectPSM.getScanNumber()) + "."
 						+ Integer.valueOf(dtaSelectPSM.getChargeState());
-				final Integer spectrumIndex = ms2Reader.getSpectrumIndexByScan(key);
-				if (spectrumIndex != null) {
-					spectrumID = "index=" + (spectrumIndex);
+				final TIntList spectrumIndexes = ms2Reader.getSpectrumIndexByScan(key);
+				if (spectrumIndexes != null && !spectrumIndexes.isEmpty()) {
+					spectrumID = "index=" + (spectrumIndexes.get(0));
 				} else {
 					log.warn("Spectrum not found in ms2  '" + ms2Reader.getFileName() + "'. Scan number='"
 							+ dtaSelectPSM.getScanNumber() + "' charge state='" + dtaSelectPSM.getChargeState() + "'");
