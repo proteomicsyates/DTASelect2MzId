@@ -40,6 +40,8 @@ import org.proteored.miapeapi.cv.ms.SoftwareName;
 import org.proteored.miapeapi.cv.msi.Score;
 import org.proteored.miapeapi.cv.msi.SearchType;
 
+import com.google.common.io.PatternFilenameFilter;
+
 import edu.scripps.yates.dtaselect2mzid.util.DTASelect2MzIdUtil;
 import edu.scripps.yates.dtaselect2mzid.util.LabeledSearchType;
 import edu.scripps.yates.dtaselect2mzid.util.MzIdentMLVersion;
@@ -411,8 +413,9 @@ public class DTASelect2MzId {
 			// writer.write("\n");
 
 		} finally {
-			writer.write(m.createMzIdentMLClosingTag());
-			log.info("File created at: " + output.getAbsolutePath());
+			if (m != null) {
+				writer.write(m.createMzIdentMLClosingTag());
+			}
 
 			final Set<String> errorMessages = PeptideModificationUtil.getErrorMessages();
 			if (!errorMessages.isEmpty()) {
@@ -422,8 +425,10 @@ public class DTASelect2MzId {
 					System.err.println(errorMessage);
 				}
 			}
-			if (writer != null)
+			if (writer != null) {
 				writer.close();
+				log.info("File created at: " + output.getAbsolutePath());
+			}
 			if (mzIdentMLVersion == MzIdentMLVersion.VERSION_1_2) {
 				fixLines();
 			}
@@ -2188,9 +2193,11 @@ public class DTASelect2MzId {
 			}
 
 			final List<File> inputFiles = getInputFiles(inputFile, inputFileName, recursiveInputFileSearch);
+
 			if (uniqueOutput) {
-				final DTASelect2MzId conversor = new DTASelect2MzId(inputFiles, new File(System.getProperty("user.dir")
-						+ File.separator + FilenameUtils.getBaseName(inputFileName) + ".mzid"), version);
+				final String outputFileName = getOutputFileName(inputFileName);
+				final DTASelect2MzId conversor = new DTASelect2MzId(inputFiles,
+						new File(System.getProperty("user.dir") + File.separator + outputFileName + ".mzid"), version);
 				conversor.setDecoyRegexp(decoyRegexp);
 				conversor.setIgnoreSpectra(ignoreSpectra);
 				conversor.setSkylineCompatible(skylineCompatible);
@@ -2220,6 +2227,14 @@ public class DTASelect2MzId {
 
 	}
 
+	private static String getOutputFileName(String inputFileName) {
+		if (containsWildcard(inputFileName)) {
+			return "output";
+		} else {
+			return FilenameUtils.getBaseName(inputFileName);
+		}
+	}
+
 	private void setSkylineCompatible(boolean skylineCompatible) {
 		this.skylineCompatible = skylineCompatible;
 	}
@@ -2241,8 +2256,19 @@ public class DTASelect2MzId {
 			ret.add(inputFile);
 		} else {
 			if (!recursiveInputFileSearch) {
-				final File file = new File(inputFile.getAbsolutePath() + File.separator + inputFileName);
-				ret.add(file);
+				if (!containsWildcard(inputFileName)) {
+					final File file = new File(inputFile.getAbsolutePath() + File.separator + inputFileName);
+					ret.add(file);
+				} else {
+					// has wildcard
+					final File[] files = inputFile
+							.listFiles(new PatternFilenameFilter(inputFileName.replace("*", ".*")));
+					for (final File file : files) {
+						if (file.isFile() && file.exists()) {
+							ret.add(file);
+						}
+					}
+				}
 			} else {
 				final List<File> files = findFiles(inputFile, inputFileName);
 				ret.addAll(files);
@@ -2259,10 +2285,20 @@ public class DTASelect2MzId {
 
 	private static List<File> findFiles(File inputFolder, String inputFileName) {
 		final List<File> ret = new ArrayList<File>();
-		// look in current folder
-		final File file = new File(inputFolder.getAbsolutePath() + File.separator + inputFileName);
-		if (file.exists()) {
-			ret.add(file);
+		if (containsWildcard(inputFileName)) {
+			// has wildcard
+			final File[] files = inputFolder.listFiles(new PatternFilenameFilter(inputFileName));
+			for (final File file : files) {
+				if (file.isFile() && file.exists()) {
+					ret.add(file);
+				}
+			}
+		} else {
+			// look in current folder
+			final File file = new File(inputFolder.getAbsolutePath() + File.separator + inputFileName);
+			if (file.exists()) {
+				ret.add(file);
+			}
 		}
 		// look in subfolders
 		final File[] listFiles = inputFolder.listFiles();
@@ -2272,6 +2308,10 @@ public class DTASelect2MzId {
 			}
 		}
 		return ret;
+	}
+
+	private static boolean containsWildcard(String inputFileName) {
+		return inputFileName.contains("*");
 	}
 
 	private void setDecoyRegexp(String decoyRegexp) {
@@ -2302,7 +2342,7 @@ public class DTASelect2MzId {
 		options.addOption("r", "recursive", false,
 				"[OPTIONAL] In case of using a folder as input '-i', it will search recursively for all the DTASelect-filter.txt files.");
 		options.addOption("n", "file_name", true,
-				"[OPTIONAL] To use a input file name different from the default 'DTASelect-filter.txt'");
+				"[OPTIONAL] To use a input file name different from the default 'DTASelect-filter.txt'. It may contain wildcards, i.e '*.txt'");
 		options.addOption("u", "unique_output_file", false,
 				"[OPTIONAL] A single mzIdentML file will be created collapsing all the information of all the input files."
 						+ " Otherwise, a mzIdentML file will be created for each input file.");
