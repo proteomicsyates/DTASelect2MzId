@@ -835,7 +835,7 @@ public class DTASelect2MzId {
 					// spectraFileName = spectraFileName.substring(1,
 					// spectraFileName.length());
 				}
-				final InputSpectra inputSpetra = getInputSpetra(spectraFileName);
+				final InputSpectra inputSpetra = getInputSpectra(spectraFileName);
 				if (!spectraDataIds.contains(inputSpetra)) {
 					ret.add(inputSpetra);
 					spectraDataIds.add(inputSpetra.getSpectraDataRef());
@@ -853,7 +853,7 @@ public class DTASelect2MzId {
 		for (final String spectraFileName2 : spectraFileNames) {
 			if (getLabeledSearchTypeByFileName(spectraFileName2) == lst) {
 				if (!spectraDataIds.contains(spectraFileName2)) {
-					final InputSpectra inputSpetra = getInputSpetra(spectraFileName2);
+					final InputSpectra inputSpetra = getInputSpectra(spectraFileName2);
 					ret.add(inputSpetra);
 					spectraDataIds.add(inputSpetra.getSpectraDataRef());
 				}
@@ -863,7 +863,7 @@ public class DTASelect2MzId {
 		return ret;
 	}
 
-	private InputSpectra getInputSpetra(String spectraFileName) throws IOException {
+	private InputSpectra getInputSpectra(String spectraFileName) throws IOException {
 		final InputSpectra ret = new InputSpectra();
 		ret.setSpectraData(getSpectraData(spectraFileName));
 		return ret;
@@ -1479,6 +1479,7 @@ public class DTASelect2MzId {
 			extension = ".mzXML";
 		}
 		spectraData.setId(fileID);
+		spectraData.setName(fileID);
 		final String filePath = dtaSelectParser.getRunPath() + File.separator + fileID + extension;
 		spectraData.setLocation(filePath);
 		spectraData.setSpectrumIDFormat(getSpectrumIDFormat());
