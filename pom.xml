@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.scripps.yates</groupId>
   <artifactId>dtaselect2mzid</artifactId>
-  <version>1.60</version>
+  <version>1.61</version>
   <properties>
       <assembly.output.folder>DTASelect2MzID</assembly.output.folder>
       <lib.dir>lib</lib.dir>
